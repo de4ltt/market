@@ -1,14 +1,12 @@
 package ru.market.hr_service.model.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.Data;
 
 import java.time.LocalDate;
 
 @Entity
-@AllArgsConstructor
-@Builder
+@Data
 public class Vacation {
 
     @Id
@@ -16,18 +14,19 @@ public class Vacation {
     private Integer vacationId;
 
     @ManyToOne
+    @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
-    @Column(length = 50)
+    @Column(length = 50, nullable = false)
     private String type;
 
-    @Column
+    @Column(nullable = false)
     private LocalDate startDate;
 
-    @Column
+    @Column(nullable = false)
     private LocalDate endDate;
 
-    @Column
-    private Boolean approved;
+    @Column(nullable = false)
+    private Boolean approved = false;
 
 }

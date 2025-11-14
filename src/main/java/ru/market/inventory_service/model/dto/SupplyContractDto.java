@@ -1,0 +1,26 @@
+package ru.market.inventory_service.model.dto;
+
+import lombok.Data;
+import lombok.NonNull;
+
+import java.time.LocalDate;
+
+@Data
+public class SupplyContractDto {
+
+    @NonNull
+    private Integer supplyContractId;
+
+    @NonNull
+    private Integer contractorId;
+
+    @NonNull
+    private Integer storageLocationId;
+
+    @NonNull
+    private LocalDate startDate;
+
+    @NonNull
+    private LocalDate endDate;
+
+}

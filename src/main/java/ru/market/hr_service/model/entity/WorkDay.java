@@ -3,14 +3,14 @@ package ru.market.hr_service.model.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@AllArgsConstructor
-@Builder
+@Data
 public class WorkDay {
 
     @Id
@@ -18,6 +18,7 @@ public class WorkDay {
     private Integer workDayId;
 
     @ManyToOne
+    @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
     @Column
