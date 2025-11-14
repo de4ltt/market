@@ -1,0 +1,24 @@
+package ru.market.inventory_service.mapper;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import ru.market.inventory_service.model.dto.SupplyContractItemDto;
+import ru.market.inventory_service.model.entity.SupplyContractItem;
+import ru.market.inventory_service.repository.ProductRepository;
+import ru.market.inventory_service.repository.SupplyContractRepository;
+
+@Mapper(
+        componentModel = "spring",
+        uses = {SupplyContractRepository.class, ProductRepository.class}
+)
+public interface SupplyContractItemMapper {
+
+    @Mapping(target = "supplyContractId", source = "supplyContract.supplyContractId")
+    @Mapping(target = "productId", source = "product.productId")
+    SupplyContractItemDto toDto(SupplyContractItem entity);
+
+    @Mapping(target = "supplyContract", source = "supplyContractId")
+    @Mapping(target = "product", source = "productId")
+    SupplyContractItem toEntity(SupplyContractItemDto dto);
+
+}
