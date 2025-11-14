@@ -1,8 +1,6 @@
 package ru.market.hr_service.model.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -20,7 +18,7 @@ public class PersonnelReport {
     private LocalDate date;
 
     @ManyToOne
-    @JoinColumn(name = "employee_id", nullable = false)
+    @JoinColumn(name = "employee_id", nullable = false, insertable = false, updatable = false)
     private Employee director;
 
     @ManyToOne
