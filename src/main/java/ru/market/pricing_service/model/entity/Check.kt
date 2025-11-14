@@ -6,10 +6,12 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.Table
 import ru.market.hr_service.model.entity.Employee
 import java.time.LocalDate
 
 @Entity
+@Table(name = "products_check")
 data class Check(
     @Id @GeneratedValue val checkId: Int,
     @ManyToOne

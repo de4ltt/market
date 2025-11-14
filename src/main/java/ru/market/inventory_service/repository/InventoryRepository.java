@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import ru.market.inventory_service.model.entity.Inventory;
 
 @Repository
-public interface InventoryService extends JpaRepository<Inventory, Integer> {
+public interface InventoryRepository extends JpaRepository<Inventory, Integer> {
 }
