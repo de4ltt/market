@@ -1,13 +1,15 @@
 package ru.market.inventory_service.model.dto;
 
-import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import ru.market.hr_service.model.entity.Employee;
 
 import java.time.LocalDate;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class StockOperationDto {
 
     @NonNull

@@ -1,12 +1,16 @@
 package ru.market.hr_service.model.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.lang.NonNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class PersonnelReport {
     @NonNull
     private Integer personnelReportId;

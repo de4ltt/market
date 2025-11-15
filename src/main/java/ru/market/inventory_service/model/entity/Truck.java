@@ -1,13 +1,17 @@
 package ru.market.inventory_service.model.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.market.hr_service.model.entity.Employee;
 
 import java.math.BigDecimal;
 
 @Entity
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Truck {
 
     @Id
