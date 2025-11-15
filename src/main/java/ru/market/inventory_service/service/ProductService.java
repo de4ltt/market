@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.market.inventory_service.exception.FailedToRetrieveProductsException;
 import ru.market.inventory_service.exception.ProductNotFoundException;
 import ru.market.inventory_service.mapper.ProductMapper;
 import ru.market.inventory_service.model.dto.ProductDto;
@@ -23,18 +24,27 @@ public class ProductService {
     @Async
     @Transactional
     public CompletableFuture<List<ProductDto>> getAllProducts() {
-        return CompletableFuture.supplyAsync(() ->
-                productRepository.findAll().parallelStream().map(productMapper::toDto).toList()
-        );
+        try {
+            return CompletableFuture.completedFuture(
+                    productRepository
+                            .findAll().parallelStream()
+                            .map(productMapper::toDto).toList());
+        } catch (RuntimeException e) {
+            throw new FailedToRetrieveProductsException();
+        }
     }
 
     @Async
     @Transactional
     public CompletableFuture<ProductDto> getProductById(Integer id) {
-        return CompletableFuture.supplyAsync(() ->
-                productRepository.findById(id).map(productMapper::toDto)
-                        .orElseThrow(() -> new ProductNotFoundException(id))
-        );
+        try {
+            CompletableFuture.completedFuture(
+                    productRepository.findById(id).map(productMapper::toDto)
+                            .orElseThrow(() -> new ProductNotFoundException(id))
+            );
+        } catch (Exception e) {
+            throw new Pro(e);
+        }
     }
 
     /**

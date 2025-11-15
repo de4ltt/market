@@ -19,28 +19,16 @@ public class ProductController {
 
     @GetMapping
     public CompletableFuture<ResponseEntity<List<ProductDto>>> getAllProducts() {
-        return productService.getAllProducts().handle((result, throwable) -> {
-           if (throwable != null)
-               throw new FailedToRetrieveProductsException();
-           else return ResponseEntity.ok(result);
-        });
+        return productService.getAllProducts().thenApply(ResponseEntity::ok);
     }
 
     @GetMapping("/{id}")
     public CompletableFuture<ResponseEntity<ProductDto>> getProductById(@PathVariable Integer id) {
-        return productService.getProductById(id).handle((result, throwable) -> {
-            if (throwable != null)
-                throw new FailedToRetrieveProductsException();
-            else return ResponseEntity.ok(result);
-        });
+        return productService.getProductById(id).thenApply(ResponseEntity::ok);
     }
 
     @GetMapping
     public CompletableFuture<ResponseEntity<List<ProductDto>>> getProductsByQuery(@RequestParam(defaultValue = "") String q) {
-        return productService.getProductsByQuery(q).handle((result, throwable) -> {
-            if (throwable != null)
-                throw new FailedToRetrieveProductsException();
-            else return ResponseEntity.ok(result);
-        });
+        return productService.getProductsByQuery(q).thenApply(ResponseEntity::ok);
     }
 }
