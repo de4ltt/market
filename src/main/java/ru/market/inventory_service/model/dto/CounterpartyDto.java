@@ -1,0 +1,24 @@
+package ru.market.inventory_service.model.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class CounterpartyDto {
+
+    @NonNull
+    private Integer counterpartyId;
+
+    @NonNull
+    private String name;
+
+    @NonNull
+    private String address;
+
+    @NonNull
+    private String contactInfo;
+}
