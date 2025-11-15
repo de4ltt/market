@@ -26,5 +26,4 @@ public class TruckDto {
 
     @NonNull
     private Integer driverId;
-
 }

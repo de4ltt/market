@@ -24,5 +24,4 @@ public class SupplyContractItemDto {
 
     @NonNull
     private String deliveryType;
-
 }

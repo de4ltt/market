@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "product_storage")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,5 +23,4 @@ public class ProductStorage {
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
-
 }

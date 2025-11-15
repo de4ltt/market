@@ -28,5 +28,4 @@ public class ReceivedProductDto {
     private String status;
 
     private String comment;
-
 }

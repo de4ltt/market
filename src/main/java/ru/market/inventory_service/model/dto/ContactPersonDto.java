@@ -21,5 +21,4 @@ public class ContactPersonDto {
 
     @NonNull
     private String email;
-
 }

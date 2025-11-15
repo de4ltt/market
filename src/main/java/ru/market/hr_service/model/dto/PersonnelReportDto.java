@@ -12,21 +12,30 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PersonnelReportDto {
+
     @NonNull
     private Integer personnelReportId;
+
     @NonNull
     private LocalDate date;
+
     @NonNull
     private Integer directorId;
+
     @NonNull
     private Integer employeeId;
+
     @NonNull
     private String status;
+
     @NonNull
     private BigDecimal totalHours = BigDecimal.ZERO;
+
     @NonNull
     private BigDecimal overtime = BigDecimal.ZERO;
+
     @NonNull
     private BigDecimal underwork = BigDecimal.ZERO;
+
     private String comment;
 }

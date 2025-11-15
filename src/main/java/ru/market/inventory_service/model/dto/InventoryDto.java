@@ -23,5 +23,4 @@ public class InventoryDto {
 
     @NonNull
     private Integer productId;
-
 }

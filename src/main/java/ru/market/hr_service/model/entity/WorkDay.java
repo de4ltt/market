@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "work_day")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

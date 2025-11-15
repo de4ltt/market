@@ -9,6 +9,7 @@ import ru.market.hr_service.model.entity.Employee;
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "stock_operation")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -48,5 +49,4 @@ public class StockOperation {
 
     @Column(nullable = false)
     private LocalDate timestamp;
-
 }

@@ -9,6 +9,7 @@ import ru.market.hr_service.model.entity.Employee;
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "received_product")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -34,5 +35,4 @@ public class ReceivedProduct {
 
     @Column
     private String comment;
-
 }

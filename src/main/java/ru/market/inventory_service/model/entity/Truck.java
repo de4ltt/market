@@ -9,6 +9,7 @@ import ru.market.hr_service.model.entity.Employee;
 import java.math.BigDecimal;
 
 @Entity
+@Table(name = "truck")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -30,6 +31,4 @@ public class Truck {
     @OneToOne
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee driver;
-
-
 }

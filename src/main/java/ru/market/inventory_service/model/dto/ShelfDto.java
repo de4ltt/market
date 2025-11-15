@@ -21,5 +21,4 @@ public class ShelfDto {
 
     @NonNull
     private String type;
-
 }

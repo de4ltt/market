@@ -6,7 +6,9 @@ import java.math.BigDecimal
 
 @Entity
 data class ProductPriceInCheck(
-    @Id @GeneratedValue val productPriceInCheckId: Int,
+    @Id
+    @GeneratedValue
+    val productPriceInCheckId: Int,
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)

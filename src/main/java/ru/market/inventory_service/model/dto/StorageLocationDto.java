@@ -21,5 +21,4 @@ public class StorageLocationDto {
 
     @NonNull
     private String address;
-
 }

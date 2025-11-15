@@ -21,5 +21,4 @@ public class CounterpartyDto {
 
     @NonNull
     private String contactInfo;
-
 }

@@ -1,14 +1,12 @@
 package ru.market.inventory_service.model.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "counterparty")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,5 +24,4 @@ public class Counterparty {
 
     @Column(nullable = false)
     private String contactInfo;
-
 }

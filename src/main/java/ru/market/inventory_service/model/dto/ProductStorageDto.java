@@ -18,5 +18,4 @@ public class ProductStorageDto {
 
     @NonNull
     private Integer productId;
-
 }

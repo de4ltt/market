@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "shelf")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,5 +25,4 @@ public class Shelf {
 
     @Column(length = 50, nullable = false)
     private String type;
-
 }

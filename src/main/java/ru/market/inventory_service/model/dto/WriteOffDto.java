@@ -28,5 +28,4 @@ public class WriteOffDto {
     private String writeOffReason;
 
     private String comment;
-
 }

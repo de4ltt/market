@@ -11,16 +11,22 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class VacationDto {
+
     @NonNull
     private Integer vacationId;
+
     @NonNull
     private Integer employeeId;
+
     @NonNull
     private String type;
+
     @NonNull
     private LocalDate startDate;
+
     @NonNull
     private LocalDate endDate;
+
     @NonNull
     private Boolean approved = false;
 }

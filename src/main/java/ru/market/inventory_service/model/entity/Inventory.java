@@ -9,6 +9,7 @@ import ru.market.hr_service.model.entity.Employee;
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "inventory")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,5 +29,4 @@ public class Inventory {
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
-
 }

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "supply_contract_item")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,5 +29,4 @@ public class SupplyContractItem {
 
     @Column(length = 50, nullable = false)
     private String deliveryType;
-
 }

@@ -11,14 +11,19 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PositionDto {
+
     @NonNull
     private Integer positionId;
+
     @NonNull
     private String name;
+
     @NonNull
     private String description;
+
     @NonNull
     private Integer monthlyHours;
+
     @NonNull
     private BigDecimal salaryRate;
 }

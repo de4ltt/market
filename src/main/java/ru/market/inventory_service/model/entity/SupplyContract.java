@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "supply_contract")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -30,5 +31,4 @@ public class SupplyContract {
 
     @Column(nullable = false)
     private LocalDate endDate;
-
 }

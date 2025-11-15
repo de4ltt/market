@@ -41,5 +41,4 @@ public class StockOperationDto {
 
     @NonNull
     private LocalDate timestamp;
-
 }

@@ -40,5 +40,4 @@ public class ProductDto {
     private String barcode;
 
     private String additionalInfo;
-
 }

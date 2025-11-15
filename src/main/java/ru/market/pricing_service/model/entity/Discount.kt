@@ -8,7 +8,10 @@ import java.math.BigDecimal
 
 @Entity
 data class Discount(
-    @Id @GeneratedValue val discountId: Int,
+    @Id
+    @GeneratedValue
+    val discountId: Int,
+
     @Column(length = 100) val discountType: String,
     @Column(precision = 10, scale = 2) val discountSize: BigDecimal
 )

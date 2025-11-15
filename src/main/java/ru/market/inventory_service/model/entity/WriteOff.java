@@ -9,6 +9,7 @@ import ru.market.hr_service.model.entity.Employee;
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "write_off")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -34,5 +35,4 @@ public class WriteOff {
 
     @Column
     private String comment;
-
 }

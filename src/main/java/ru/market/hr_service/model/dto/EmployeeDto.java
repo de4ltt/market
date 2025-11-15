@@ -53,5 +53,4 @@ public class EmployeeDto {
 
     @NonNull
     private String email;
-
 }
