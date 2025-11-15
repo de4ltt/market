@@ -26,7 +26,6 @@ data class ProductPriceInCheck(
     @JoinColumn(name = "discount_id", nullable = false)
     val discount: Discount,
 
-    @Column val storeId: Int,
     @Column(precision = 10, scale = 2) val inputPrice: BigDecimal,
     @Column(precision = 10, scale = 2) val finalPrice: BigDecimal,
     @Column(precision = 10, scale = 2) val priceType: BigDecimal

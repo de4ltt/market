@@ -5,7 +5,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.market.inventory_service.exception.CounterpartyNotFoundException;
-import ru.market.inventory_service.exception.FailedToRetrieveCounterpartiesException;
+import ru.market.inventory_service.exception.RetrieveCounterpartiesException;
 import ru.market.inventory_service.mapper.ContactPersonMapper;
 import ru.market.inventory_service.mapper.CounterpartyMapper;
 import ru.market.inventory_service.model.dto.ContactPersonDto;
@@ -33,7 +33,7 @@ public class CounterpartyService {
                 counterpartyRepository.findAll().parallelStream().map(counterpartyMapper::toDto).toList()
         ).handle((result, throwable) -> {
             if (throwable != null)
-                throw new FailedToRetrieveCounterpartiesException();
+                throw new RetrieveCounterpartiesException();
             return result;
         });
     }

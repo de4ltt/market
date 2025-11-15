@@ -4,8 +4,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.market.inventory_service.exception.FailedToRetrieveProductsException;
 import ru.market.inventory_service.exception.ProductNotFoundException;
+import ru.market.inventory_service.exception.ProductRetrieveException;
+import ru.market.inventory_service.exception.RetrieveProductsException;
 import ru.market.inventory_service.mapper.ProductMapper;
 import ru.market.inventory_service.model.dto.ProductDto;
 import ru.market.inventory_service.repository.ProductRepository;
@@ -24,27 +25,26 @@ public class ProductService {
     @Async
     @Transactional
     public CompletableFuture<List<ProductDto>> getAllProducts() {
-        try {
-            return CompletableFuture.completedFuture(
-                    productRepository
-                            .findAll().parallelStream()
-                            .map(productMapper::toDto).toList());
-        } catch (RuntimeException e) {
-            throw new FailedToRetrieveProductsException();
-        }
+        return CompletableFuture.completedFuture(
+                productRepository.findAll().parallelStream().map(productMapper::toDto).toList()
+        ).handle((result, throwable) -> {
+            if (throwable != null)
+                throw new RetrieveProductsException();
+            else return result;
+        });
     }
 
     @Async
     @Transactional
     public CompletableFuture<ProductDto> getProductById(Integer id) {
-        try {
-            CompletableFuture.completedFuture(
-                    productRepository.findById(id).map(productMapper::toDto)
-                            .orElseThrow(() -> new ProductNotFoundException(id))
-            );
-        } catch (Exception e) {
-            throw new Pro(e);
-        }
+        return CompletableFuture.completedFuture(
+                productRepository.findById(id).map(productMapper::toDto)
+                        .orElseThrow(() -> new ProductNotFoundException(id))
+        ).handle((result, throwable) -> {
+            if (throwable != null)
+                throw new ProductRetrieveException(id);
+            else return result;
+        });
     }
 
     /**
@@ -53,8 +53,12 @@ public class ProductService {
     @Async
     @Transactional
     public CompletableFuture<List<ProductDto>> getProductsByQuery(String query) {
-        return CompletableFuture.supplyAsync(() ->
+        return CompletableFuture.completedFuture(
                 productRepository.findAllByName(query).parallelStream().map(productMapper::toDto).toList()
-        );
+        ).handle((result, throwable) -> {
+            if (throwable != null)
+                throw new RetrieveProductsException();
+            else return result;
+        });
     }
 }

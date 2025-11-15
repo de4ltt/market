@@ -2,11 +2,7 @@ package ru.market.inventory_service.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import ru.market.inventory_service.exception.FailedToRetrieveCounterpartiesException;
+import org.springframework.web.bind.annotation.*;
 import ru.market.inventory_service.model.dto.ContactPersonDto;
 import ru.market.inventory_service.model.dto.CounterpartyDto;
 import ru.market.inventory_service.service.CounterpartyService;
