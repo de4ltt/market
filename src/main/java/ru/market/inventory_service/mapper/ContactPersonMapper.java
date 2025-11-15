@@ -6,8 +6,6 @@ import ru.market.inventory_service.model.entity.ContactPerson;
 
 @Mapper(componentModel = "spring")
 public interface ContactPersonMapper {
-
     ContactPersonDto toDto(ContactPerson entity);
-
     ContactPerson toEntity(ContactPersonDto dto);
 }

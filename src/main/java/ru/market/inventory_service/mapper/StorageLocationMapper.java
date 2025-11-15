@@ -6,8 +6,6 @@ import ru.market.inventory_service.model.entity.StorageLocation;
 
 @Mapper(componentModel = "spring")
 public interface StorageLocationMapper {
-
     StorageLocationDto toDto(StorageLocation entity);
-
     StorageLocation toEntity(StorageLocationDto dto);
 }

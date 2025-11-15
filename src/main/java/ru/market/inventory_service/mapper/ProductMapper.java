@@ -6,8 +6,6 @@ import ru.market.inventory_service.model.entity.Product;
 
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
-
     ProductDto toDto(Product entity);
-
     Product toEntity(ProductDto dto);
 }
