@@ -17,8 +17,7 @@ public interface SupplyContractItemMapper {
     @Mapping(target = "productId", source = "product.productId")
     SupplyContractItemDto toDto(SupplyContractItem entity);
 
-    @Mapping(target = "supplyContract", source = "supplyContractId")
-    @Mapping(target = "product", source = "productId")
+    @Mapping(target = "supplyContract", source = "supplyContractId", qualifiedByName = "supplyContractById")
+    @Mapping(target = "product", source = "productId", qualifiedByName = "productById")
     SupplyContractItem toEntity(SupplyContractItemDto dto);
-
 }

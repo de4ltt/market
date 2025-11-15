@@ -12,6 +12,6 @@ public interface TruckMapper {
     @Mapping(target = "driverId", source = "driver.employeeId")
     TruckDto toDto(Truck entity);
 
-    @Mapping(target = "driver", source = "driverId")
+    @Mapping(target = "driver", source = "driverId", qualifiedByName = "employeeById")
     Truck toEntity(TruckDto dto);
 }

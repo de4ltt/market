@@ -7,15 +7,15 @@ import ru.market.inventory_service.model.dto.ReceivedProductDto;
 import ru.market.inventory_service.model.entity.ReceivedProduct;
 import ru.market.inventory_service.repository.ProductRepository;
 
-@Mapper(componentModel = "spring", uses = {EmployeeRepository.class, ProductRepository.class})
+@Mapper(componentModel = "spring",
+        uses = {EmployeeRepository.class, ProductRepository.class})
 interface ReceivedProductMapper {
 
     @Mapping(target = "employeeId", source = "employee.employeeId")
-    @Mapping(target = "productId", source = "product.productId")
+    @Mapping(target = "productId",   source = "product.productId")
     ReceivedProductDto toDto(ReceivedProduct entity);
 
-    @Mapping(target = "employee", source = "employeeId")
-    @Mapping(target = "product", source = "productId")
+    @Mapping(target = "employee", source = "employeeId", qualifiedByName = "employeeById")
+    @Mapping(target = "product",   source = "productId",   qualifiedByName = "productById")
     ReceivedProduct toEntity(ReceivedProductDto dto);
-
 }

@@ -7,15 +7,15 @@ import ru.market.inventory_service.model.entity.SupplyContract;
 import ru.market.inventory_service.repository.CounterpartyRepository;
 import ru.market.inventory_service.repository.StorageLocationRepository;
 
-@Mapper(componentModel = "spring", uses = {CounterpartyRepository.class, StorageLocationRepository.class})
+@Mapper(componentModel = "spring",
+        uses = {CounterpartyRepository.class, StorageLocationRepository.class})
 public interface SupplyContractMapper {
 
-    @Mapping(target = "contractorId", source = "contractor.counterpartyId")
+    @Mapping(target = "contractorId",      source = "contractor.counterpartyId")
     @Mapping(target = "storageLocationId", source = "storageLocation.storageLocationId")
     SupplyContractDto toDto(SupplyContract entity);
 
-    @Mapping(target = "contractor", source = "contractorId")
-    @Mapping(target = "storageLocation", source = "storageLocationId")
+    @Mapping(target = "contractor",       source = "contractorId",      qualifiedByName = "counterpartyById")
+    @Mapping(target = "storageLocation", source = "storageLocationId", qualifiedByName = "storageLocationById")
     SupplyContract toEntity(SupplyContractDto dto);
-
 }

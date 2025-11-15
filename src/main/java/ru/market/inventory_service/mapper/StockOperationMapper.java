@@ -9,13 +9,9 @@ import ru.market.inventory_service.repository.ProductRepository;
 import ru.market.inventory_service.repository.ShelfRepository;
 import ru.market.inventory_service.repository.StorageLocationRepository;
 
-@Mapper(
-        componentModel = "spring",
-        uses = {
-                ProductRepository.class, EmployeeRepository.class,
-                StorageLocationRepository.class, ShelfRepository.class
-        }
-)
+@Mapper(componentModel = "spring",
+        uses = {ProductRepository.class, EmployeeRepository.class,
+                StorageLocationRepository.class, ShelfRepository.class})
 public interface StockOperationMapper {
 
     @Mapping(target = "productId", source = "product.productId")
@@ -24,10 +20,9 @@ public interface StockOperationMapper {
     @Mapping(target = "shelfId", source = "shelf.shelfId")
     StockOperationDto toDto(StockOperation entity);
 
-    @Mapping(target = "product", source = "productId")
-    @Mapping(target = "responsibleEmployee", source = "responsibleEmployeeId")
-    @Mapping(target = "storageLocation", source = "storageLocationId")
-    @Mapping(target = "shelf", source = "shelfId")
+    @Mapping(target = "product", source = "productId", qualifiedByName = "productById")
+    @Mapping(target = "responsibleEmployee",source = "responsibleEmployeeId",qualifiedByName = "employeeById")
+    @Mapping(target = "storageLocation", source = "storageLocationId",   qualifiedByName = "storageLocationById")
+    @Mapping(target = "shelf", source = "shelfId", qualifiedByName = "shelfById")
     StockOperation toEntity(StockOperationDto dto);
-
 }

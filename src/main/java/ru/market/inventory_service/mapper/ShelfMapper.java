@@ -12,7 +12,6 @@ public interface ShelfMapper {
     @Mapping(target = "storageLocationId", source = "storageLocation.storageLocationId")
     ShelfDto toDto(Shelf entity);
 
-    @Mapping(target = "storageLocation", source = "storageLocationId")
+    @Mapping(target = "storageLocation", source = "storageLocationId", qualifiedByName = "storageLocationById")
     Shelf toEntity(ShelfDto dto);
-
 }

@@ -12,10 +12,10 @@ import ru.market.inventory_service.repository.ProductRepository;
 public interface InventoryMapper {
 
     @Mapping(target = "employeeId", source = "employee.employeeId")
-    @Mapping(target = "productId", source = "product.productId")
+    @Mapping(target = "productId",   source = "product.productId")
     InventoryDto toDto(Inventory entity);
 
-    @Mapping(target = "employee", source = "employeeId")
-    @Mapping(target = "product", source = "productId")
+    @Mapping(target = "employee", source = "employeeId", qualifiedByName = "employeeById")
+    @Mapping(target = "product",   source = "productId",   qualifiedByName = "productById")
     Inventory toEntity(InventoryDto dto);
 }
