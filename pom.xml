@@ -64,6 +64,18 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.jetbrains.kotlin</groupId>
+			<artifactId>kotlin-reflect</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jetbrains.kotlin.plugin.noarg</groupId>
+			<artifactId>org.jetbrains.kotlin.plugin.noarg.gradle.plugin</artifactId>
+			<version>${kotlin.version}</version>
+			<type>pom</type>
+		</dependency>
+
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
@@ -73,8 +85,6 @@
 
 	<build>
 		<plugins>
-
-			<!-- ЕДИНСТВЕННЫЙ compiler-plugin -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -84,22 +94,16 @@
 					<target>21</target>
 
 					<annotationProcessorPaths>
-
-						<!-- Lombok -->
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
 							<version>1.18.34</version>
 						</path>
-
-						<!-- MapStruct processor -->
 						<path>
 							<groupId>org.mapstruct</groupId>
 							<artifactId>mapstruct-processor</artifactId>
 							<version>1.6.3</version>
 						</path>
-
-						<!-- Связка Lombok + MapStruct -->
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok-mapstruct-binding</artifactId>
@@ -115,6 +119,13 @@
 				<groupId>org.jetbrains.kotlin</groupId>
 				<artifactId>kotlin-maven-plugin</artifactId>
 				<version>${kotlin.version}</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.jetbrains.kotlin</groupId>
+						<artifactId>kotlin-maven-noarg</artifactId>
+						<version>${kotlin.version}</version>
+					</dependency>
+				</dependencies>
 				<executions>
 					<execution>
 						<id>compile</id>
@@ -133,6 +144,9 @@
 				</executions>
 				<configuration>
 					<jvmTarget>21</jvmTarget>
+					<compilerPlugins>
+						<plugin>jpa</plugin>
+					</compilerPlugins>
 				</configuration>
 			</plugin>
 
