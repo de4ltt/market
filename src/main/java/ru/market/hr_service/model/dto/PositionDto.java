@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Position {
+public class PositionDto {
     @NonNull
     private Integer positionId;
     @NonNull

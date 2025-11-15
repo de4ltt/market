@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PersonnelReport {
+public class PersonnelReportDto {
     @NonNull
     private Integer personnelReportId;
     @NonNull

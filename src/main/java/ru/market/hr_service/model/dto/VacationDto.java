@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Vacation {
+public class VacationDto {
     @NonNull
     private Integer vacationId;
     @NonNull

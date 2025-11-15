@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class WorkDay {
+public class WorkDayDto {
     private Integer workDayId;
     private EmployeeDto employee;
     private LocalDate date;
