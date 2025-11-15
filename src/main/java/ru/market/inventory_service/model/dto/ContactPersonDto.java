@@ -10,8 +10,7 @@ import lombok.NonNull;
 @NoArgsConstructor
 public class ContactPersonDto {
 
-    @NonNull
-    private Integer contactPersonId;
+    private Integer contactPersonId = null;
 
     @NonNull
     Integer counterpartyId;

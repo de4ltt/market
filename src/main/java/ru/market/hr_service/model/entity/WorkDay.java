@@ -20,7 +20,7 @@ public class WorkDay {
     @GeneratedValue
     private Integer workDayId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 

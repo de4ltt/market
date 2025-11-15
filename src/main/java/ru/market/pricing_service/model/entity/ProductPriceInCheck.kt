@@ -10,19 +10,19 @@ data class ProductPriceInCheck(
     @GeneratedValue
     val productPriceInCheckId: Int,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "product_id", nullable = false)
     val product: Product,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "check_id", nullable = false)
     val check: Check,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "price_list_id", nullable = false)
     val priceList: PriceList,
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "discount_id", nullable = false)
     val discount: Discount,
 

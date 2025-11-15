@@ -10,8 +10,7 @@ import lombok.NonNull;
 @NoArgsConstructor
 public class SupplyContractItemDto {
 
-    @NonNull
-    private Integer supplyContractItemId;
+    private Integer supplyContractItemId = null;
 
     @NonNull
     private Integer supplyContractId;
@@ -20,7 +19,7 @@ public class SupplyContractItemDto {
     private Integer productId;
 
     @NonNull
-    private Integer quantity;
+    private Integer quantity = 1;
 
     @NonNull
     private String deliveryType;

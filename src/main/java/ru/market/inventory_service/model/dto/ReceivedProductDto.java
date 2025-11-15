@@ -12,8 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ReceivedProductDto {
 
-    @NonNull
-    private Integer receivedProductId;
+    private Integer receivedProductId = null;
 
     @NonNull
     private Integer employeeId;

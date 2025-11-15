@@ -2,12 +2,13 @@ package ru.market.inventory_service.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import ru.market.inventory_service.core.mapper.EntityMapper;
 import ru.market.inventory_service.model.dto.ShelfDto;
 import ru.market.inventory_service.model.entity.Shelf;
 import ru.market.inventory_service.repository.StorageLocationRepository;
 
 @Mapper(componentModel = "spring", uses = {StorageLocationRepository.class})
-public interface ShelfMapper {
+public interface ShelfMapper extends EntityMapper<Shelf, ShelfDto> {
 
     @Mapping(target = "storageLocationId", source = "storageLocation.storageLocationId")
     ShelfDto toDto(Shelf entity);

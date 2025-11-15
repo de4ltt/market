@@ -3,7 +3,7 @@ package ru.market.pricing_service.model.dto
 import java.math.BigDecimal
 
 data class ProductPriceInCheckDto(
-    val productPriceInCheckId: Int,
+    val productPriceInCheckId: Int? = null,
     val productId: Int,
     val checkId: Int,
     val priceListId: Int,

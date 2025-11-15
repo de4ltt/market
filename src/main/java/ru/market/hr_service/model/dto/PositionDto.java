@@ -12,8 +12,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class PositionDto {
 
-    @NonNull
-    private Integer positionId;
+    private Integer positionId = null;
 
     @NonNull
     private String name;

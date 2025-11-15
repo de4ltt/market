@@ -18,11 +18,11 @@ public class SupplyContract {
     @GeneratedValue
     private Integer supplyContractId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "counterparty_id", nullable = false)
     private Counterparty contractor;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "storage_location_id", nullable = false)
     private StorageLocation storageLocation;
 

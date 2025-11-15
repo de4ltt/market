@@ -1,30 +1,17 @@
 package ru.market.inventory_service.service;
 
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.market.inventory_service.exception.RetrieveStorageLocationsException;
+import ru.market.inventory_service.core.service.CRUDService;
 import ru.market.inventory_service.mapper.StorageLocationMapper;
 import ru.market.inventory_service.model.dto.StorageLocationDto;
+import ru.market.inventory_service.model.entity.StorageLocation;
 import ru.market.inventory_service.repository.StorageLocationRepository;
 
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-
 @Service
-@AllArgsConstructor
-public class StorageLocationService {
-
-    private final StorageLocationRepository storageLocationRepository;
-
-    private final StorageLocationMapper storageLocationMapper;
-
-    public CompletableFuture<List<StorageLocationDto>> getAllStorageLocations() {
-        return CompletableFuture.completedFuture(
-                storageLocationRepository.findAll().parallelStream().map(storageLocationMapper::toDto).toList()
-        ).handle((result, throwable) -> {
-            if (throwable != null)
-                throw new RetrieveStorageLocationsException();
-            return result;
-        });
+public class StorageLocationService extends CRUDService<StorageLocation, StorageLocationDto> {
+    @Autowired
+    public StorageLocationService(StorageLocationRepository storageLocationRepository, StorageLocationMapper storageLocationMapper) {
+        super(storageLocationRepository, storageLocationMapper);
     }
 }

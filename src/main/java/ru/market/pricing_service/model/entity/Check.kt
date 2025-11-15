@@ -11,7 +11,7 @@ data class Check(
     @GeneratedValue
     val checkId: Int,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "employee_id", nullable = false)
     val employee: Employee,
 
