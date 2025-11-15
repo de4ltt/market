@@ -14,6 +14,9 @@ public class ContactPersonDto {
     private Integer contactPersonId;
 
     @NonNull
+    Integer counterpartyId;
+
+    @NonNull
     private String fullName;
 
     @NonNull

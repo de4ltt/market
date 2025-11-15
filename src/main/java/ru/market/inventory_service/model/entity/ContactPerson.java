@@ -16,6 +16,9 @@ public class ContactPerson {
     @GeneratedValue
     private Integer contactPersonId;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    private Counterparty counterparty;
+
     @Column(nullable = false)
     private String fullName;
 
