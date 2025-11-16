@@ -22,14 +22,16 @@ public class WriteOffController {
         return writeOffService.getAll().thenApply(ResponseEntity::ok);
     }
 
-    @GetMapping("/{if}")
+    @GetMapping("/{id}")
     public CompletableFuture<ResponseEntity<WriteOffDto>> getWriteOffById(@PathVariable Integer id) {
         return writeOffService.getById(id).thenApply(ResponseEntity::ok);
     }
 
     @PostMapping
     public CompletableFuture<ResponseEntity<WriteOffDto>> addWriteOff(@RequestBody WriteOffDto writeOffDto) {
-        return writeOffService.add(writeOffDto).thenApply(ResponseEntity::ok);
+        return writeOffService.add(writeOffDto).thenApply(
+                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
+        );
     }
 
     @PutMapping("/{id}")

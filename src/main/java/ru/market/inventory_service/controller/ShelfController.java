@@ -22,14 +22,16 @@ public class ShelfController {
         return shelfService.getAll().thenApply(ResponseEntity::ok);
     }
 
-    @GetMapping("/{if}")
+    @GetMapping("/{id}")
     public CompletableFuture<ResponseEntity<ShelfDto>> getShelfById(@PathVariable Integer id) {
         return shelfService.getById(id).thenApply(ResponseEntity::ok);
     }
 
     @PostMapping
     public CompletableFuture<ResponseEntity<ShelfDto>> addShelf(@RequestBody ShelfDto shelfDto) {
-        return shelfService.add(shelfDto).thenApply(ResponseEntity::ok);
+        return shelfService.add(shelfDto).thenApply(
+                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
+        );
     }
 
     @PutMapping("/{id}")

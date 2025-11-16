@@ -10,14 +10,14 @@ import ru.market.inventory_service.exception.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public abstract class CRUDService<Entity, Dto> {
+public abstract class InventoryCRUDService<Entity, Dto> {
 
     private final Class<Entity> entityClass;
     private final JpaRepository<Entity, Integer> entityRepository;
     private final EntityMapper<Entity, Dto> entityMapper;
 
     @SuppressWarnings("unchecked")
-    public CRUDService(JpaRepository<Entity, Integer> entityRepository, EntityMapper<Entity, Dto> entityMapper) {
+    public InventoryCRUDService(JpaRepository<Entity, Integer> entityRepository, EntityMapper<Entity, Dto> entityMapper) {
         this.entityRepository = entityRepository;
         this.entityMapper = entityMapper;
         

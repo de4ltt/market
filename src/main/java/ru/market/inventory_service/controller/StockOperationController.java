@@ -22,14 +22,16 @@ public class StockOperationController {
         return stockOperationService.getAll().thenApply(ResponseEntity::ok);
     }
 
-    @GetMapping("/{if}")
+    @GetMapping("/{id}")
     public CompletableFuture<ResponseEntity<StockOperationDto>> getStockOperationById(@PathVariable Integer id) {
         return stockOperationService.getById(id).thenApply(ResponseEntity::ok);
     }
 
     @PostMapping
     public CompletableFuture<ResponseEntity<StockOperationDto>> addStockOperation(@RequestBody StockOperationDto stockOperationDto) {
-        return stockOperationService.add(stockOperationDto).thenApply(ResponseEntity::ok);
+        return stockOperationService.add(stockOperationDto).thenApply(
+                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
+        );
     }
 
     @PutMapping("/{id}")

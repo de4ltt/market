@@ -22,14 +22,16 @@ public class ProductStorageController {
         return productStorageService.getAll().thenApply(ResponseEntity::ok);
     }
 
-    @GetMapping("/{if}")
+    @GetMapping("/{id}")
     public CompletableFuture<ResponseEntity<ProductStorageDto>> getProductStorageById(@PathVariable Integer id) {
         return productStorageService.getById(id).thenApply(ResponseEntity::ok);
     }
 
     @PostMapping
     public CompletableFuture<ResponseEntity<ProductStorageDto>> addProductStorage(@RequestBody ProductStorageDto productStorageDto) {
-        return productStorageService.add(productStorageDto).thenApply(ResponseEntity::ok);
+        return productStorageService.add(productStorageDto).thenApply(
+                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
+        );
     }
 
     @PutMapping("/{id}")

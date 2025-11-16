@@ -22,14 +22,16 @@ public class InventoryController {
         return inventoryService.getAll().thenApply(ResponseEntity::ok);
     }
 
-    @GetMapping("/{if}")
+    @GetMapping("/{id}")
     public CompletableFuture<ResponseEntity<InventoryDto>> getInventoryById(@PathVariable Integer id) {
         return inventoryService.getById(id).thenApply(ResponseEntity::ok);
     }
 
     @PostMapping
     public CompletableFuture<ResponseEntity<InventoryDto>> addInventory(@RequestBody InventoryDto inventoryDto) {
-        return inventoryService.add(inventoryDto).thenApply(ResponseEntity::ok);
+        return inventoryService.add(inventoryDto).thenApply(
+                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
+        );
     }
 
     @PutMapping("/{id}")

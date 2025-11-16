@@ -22,14 +22,16 @@ public class ReceivedProductController {
         return receivedProductService.getAll().thenApply(ResponseEntity::ok);
     }
 
-    @GetMapping("/{if}")
+    @GetMapping("/{id}")
     public CompletableFuture<ResponseEntity<ReceivedProductDto>> getReceivedProductById(@PathVariable Integer id) {
         return receivedProductService.getById(id).thenApply(ResponseEntity::ok);
     }
 
     @PostMapping
     public CompletableFuture<ResponseEntity<ReceivedProductDto>> addReceivedProduct(@RequestBody ReceivedProductDto receivedProductDto) {
-        return receivedProductService.add(receivedProductDto).thenApply(ResponseEntity::ok);
+        return receivedProductService.add(receivedProductDto).thenApply(
+                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
+        );
     }
 
     @PutMapping("/{id}")

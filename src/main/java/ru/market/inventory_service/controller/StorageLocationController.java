@@ -30,7 +30,9 @@ public class StorageLocationController {
 
     @PostMapping
     public CompletableFuture<ResponseEntity<StorageLocationDto>> addStorageLocation(@RequestBody StorageLocationDto storageLocation) {
-        return storageLocationService.add(storageLocation).thenApply(ResponseEntity::ok);
+        return storageLocationService.add(storageLocation).thenApply(
+                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
+        );
     }
 
     @PutMapping("/{id}")

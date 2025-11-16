@@ -22,14 +22,16 @@ public class SupplyContractController {
         return supplyContractService.getAll().thenApply(ResponseEntity::ok);
     }
 
-    @GetMapping("/{if}")
+    @GetMapping("/{id}")
     public CompletableFuture<ResponseEntity<SupplyContractDto>> getSupplyContractById(@PathVariable Integer id) {
         return supplyContractService.getById(id).thenApply(ResponseEntity::ok);
     }
 
     @PostMapping
     public CompletableFuture<ResponseEntity<SupplyContractDto>> addSupplyContract(@RequestBody SupplyContractDto supplyContractDto) {
-        return supplyContractService.add(supplyContractDto).thenApply(ResponseEntity::ok);
+        return supplyContractService.add(supplyContractDto).thenApply(
+                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
+        );
     }
 
     @PutMapping("/{id}")

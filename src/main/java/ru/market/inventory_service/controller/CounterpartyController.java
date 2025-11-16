@@ -24,14 +24,16 @@ public class CounterpartyController {
         return counterpartyService.getAll().thenApply(ResponseEntity::ok);
     }
 
-    @GetMapping("/{if}")
+    @GetMapping("/{id}")
     public CompletableFuture<ResponseEntity<CounterpartyDto>> getCounterpartyById(@PathVariable Integer id) {
         return counterpartyService.getById(id).thenApply(ResponseEntity::ok);
     }
 
     @PostMapping
     public CompletableFuture<ResponseEntity<CounterpartyDto>> addCounterparty(@RequestBody CounterpartyDto counterpartyDto) {
-        return counterpartyService.add(counterpartyDto).thenApply(ResponseEntity::ok);
+        return counterpartyService.add(counterpartyDto).thenApply(
+                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
+        );
     }
 
     @PutMapping("/{id}")

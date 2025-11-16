@@ -22,14 +22,16 @@ public class ContactPersonController {
         return contactPersonService.getAll().thenApply(ResponseEntity::ok);
     }
 
-    @GetMapping("/{if}")
+    @GetMapping("/{id}")
     public CompletableFuture<ResponseEntity<ContactPersonDto>> getContactPersonById(@PathVariable Integer id) {
         return contactPersonService.getById(id).thenApply(ResponseEntity::ok);
     }
 
     @PostMapping
     public CompletableFuture<ResponseEntity<ContactPersonDto>> addContactPerson(@RequestBody ContactPersonDto contactPersonDto) {
-        return contactPersonService.add(contactPersonDto).thenApply(ResponseEntity::ok);
+        return contactPersonService.add(contactPersonDto).thenApply(
+                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
+        );
     }
 
     @PutMapping("/{id}")

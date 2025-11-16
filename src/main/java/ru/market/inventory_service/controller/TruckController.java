@@ -22,14 +22,16 @@ public class TruckController {
         return truckService.getAll().thenApply(ResponseEntity::ok);
     }
 
-    @GetMapping("/{if}")
+    @GetMapping("/{id}")
     public CompletableFuture<ResponseEntity<TruckDto>> getTruckById(@PathVariable Integer id) {
         return truckService.getById(id).thenApply(ResponseEntity::ok);
     }
 
     @PostMapping
     public CompletableFuture<ResponseEntity<TruckDto>> addTruck(@RequestBody TruckDto truckDto) {
-        return truckService.add(truckDto).thenApply(ResponseEntity::ok);
+        return truckService.add(truckDto).thenApply(
+                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
+        );
     }
 
     @PutMapping("/{id}")
