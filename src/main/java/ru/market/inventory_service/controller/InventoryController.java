@@ -29,7 +29,9 @@ public class InventoryController {
 
     @PostMapping
     public CompletableFuture<ResponseEntity<InventoryDto>> addInventory(@RequestBody InventoryDto inventoryDto) {
-        return inventoryService.add(inventoryDto).thenApply(ResponseEntity::ok);
+        return inventoryService.add(inventoryDto).thenApply(
+                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
+        );
     }
 
     @PutMapping("/{id}")

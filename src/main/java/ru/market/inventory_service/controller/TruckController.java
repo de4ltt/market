@@ -29,7 +29,9 @@ public class TruckController {
 
     @PostMapping
     public CompletableFuture<ResponseEntity<TruckDto>> addTruck(@RequestBody TruckDto truckDto) {
-        return truckService.add(truckDto).thenApply(ResponseEntity::ok);
+        return truckService.add(truckDto).thenApply(
+                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
+        );
     }
 
     @PutMapping("/{id}")

@@ -29,7 +29,9 @@ public class ProductStorageController {
 
     @PostMapping
     public CompletableFuture<ResponseEntity<ProductStorageDto>> addProductStorage(@RequestBody ProductStorageDto productStorageDto) {
-        return productStorageService.add(productStorageDto).thenApply(ResponseEntity::ok);
+        return productStorageService.add(productStorageDto).thenApply(
+                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
+        );
     }
 
     @PutMapping("/{id}")

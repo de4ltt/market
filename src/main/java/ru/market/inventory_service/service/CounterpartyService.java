@@ -39,6 +39,6 @@ public class CounterpartyService extends InventoryCRUDService<Counterparty, Coun
             return CompletableFuture.completedFuture(
                     counterparty.get().getContactPersonList().parallelStream().map(contactPersonMapper::toDto).toList()
             );
-        else throw new EntityNotFoundException(ContactPerson.class.getSimpleName(), id);
+        else throw new EntityNotFoundException(Counterparty.class.getSimpleName(), id);
     }
 }

@@ -31,7 +31,9 @@ public class CounterpartyController {
 
     @PostMapping
     public CompletableFuture<ResponseEntity<CounterpartyDto>> addCounterparty(@RequestBody CounterpartyDto counterpartyDto) {
-        return counterpartyService.add(counterpartyDto).thenApply(ResponseEntity::ok);
+        return counterpartyService.add(counterpartyDto).thenApply(
+                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
+        );
     }
 
     @PutMapping("/{id}")

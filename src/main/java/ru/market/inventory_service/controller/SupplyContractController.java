@@ -29,7 +29,9 @@ public class SupplyContractController {
 
     @PostMapping
     public CompletableFuture<ResponseEntity<SupplyContractDto>> addSupplyContract(@RequestBody SupplyContractDto supplyContractDto) {
-        return supplyContractService.add(supplyContractDto).thenApply(ResponseEntity::ok);
+        return supplyContractService.add(supplyContractDto).thenApply(
+                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
+        );
     }
 
     @PutMapping("/{id}")

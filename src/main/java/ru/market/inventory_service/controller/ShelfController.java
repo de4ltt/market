@@ -29,7 +29,9 @@ public class ShelfController {
 
     @PostMapping
     public CompletableFuture<ResponseEntity<ShelfDto>> addShelf(@RequestBody ShelfDto shelfDto) {
-        return shelfService.add(shelfDto).thenApply(ResponseEntity::ok);
+        return shelfService.add(shelfDto).thenApply(
+                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
+        );
     }
 
     @PutMapping("/{id}")

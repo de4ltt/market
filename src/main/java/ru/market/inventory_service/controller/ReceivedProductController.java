@@ -29,7 +29,9 @@ public class ReceivedProductController {
 
     @PostMapping
     public CompletableFuture<ResponseEntity<ReceivedProductDto>> addReceivedProduct(@RequestBody ReceivedProductDto receivedProductDto) {
-        return receivedProductService.add(receivedProductDto).thenApply(ResponseEntity::ok);
+        return receivedProductService.add(receivedProductDto).thenApply(
+                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
+        );
     }
 
     @PutMapping("/{id}")

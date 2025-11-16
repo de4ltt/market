@@ -29,7 +29,9 @@ public class StockOperationController {
 
     @PostMapping
     public CompletableFuture<ResponseEntity<StockOperationDto>> addStockOperation(@RequestBody StockOperationDto stockOperationDto) {
-        return stockOperationService.add(stockOperationDto).thenApply(ResponseEntity::ok);
+        return stockOperationService.add(stockOperationDto).thenApply(
+                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
+        );
     }
 
     @PutMapping("/{id}")

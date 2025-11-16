@@ -29,7 +29,9 @@ public class WriteOffController {
 
     @PostMapping
     public CompletableFuture<ResponseEntity<WriteOffDto>> addWriteOff(@RequestBody WriteOffDto writeOffDto) {
-        return writeOffService.add(writeOffDto).thenApply(ResponseEntity::ok);
+        return writeOffService.add(writeOffDto).thenApply(
+                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
+        );
     }
 
     @PutMapping("/{id}")

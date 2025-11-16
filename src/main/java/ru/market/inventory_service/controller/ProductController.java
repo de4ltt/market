@@ -32,7 +32,9 @@ public class ProductController {
 
     @PostMapping
     public CompletableFuture<ResponseEntity<ProductDto>> addProduct(@RequestBody ProductDto product) {
-        return productService.add(product).thenApply(ResponseEntity::ok);
+        return productService.add(product).thenApply(
+                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
+        );
     }
 
     @PutMapping("/{id}")
