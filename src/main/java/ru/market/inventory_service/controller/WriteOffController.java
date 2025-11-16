@@ -22,7 +22,7 @@ public class WriteOffController {
         return writeOffService.getAll().thenApply(ResponseEntity::ok);
     }
 
-    @GetMapping("/{if}")
+    @GetMapping("/{id}")
     public CompletableFuture<ResponseEntity<WriteOffDto>> getWriteOffById(@PathVariable Integer id) {
         return writeOffService.getById(id).thenApply(ResponseEntity::ok);
     }

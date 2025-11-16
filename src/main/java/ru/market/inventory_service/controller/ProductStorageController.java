@@ -22,7 +22,7 @@ public class ProductStorageController {
         return productStorageService.getAll().thenApply(ResponseEntity::ok);
     }
 
-    @GetMapping("/{if}")
+    @GetMapping("/{id}")
     public CompletableFuture<ResponseEntity<ProductStorageDto>> getProductStorageById(@PathVariable Integer id) {
         return productStorageService.getById(id).thenApply(ResponseEntity::ok);
     }

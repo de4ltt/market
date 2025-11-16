@@ -22,7 +22,7 @@ public class StockOperationController {
         return stockOperationService.getAll().thenApply(ResponseEntity::ok);
     }
 
-    @GetMapping("/{if}")
+    @GetMapping("/{id}")
     public CompletableFuture<ResponseEntity<StockOperationDto>> getStockOperationById(@PathVariable Integer id) {
         return stockOperationService.getById(id).thenApply(ResponseEntity::ok);
     }

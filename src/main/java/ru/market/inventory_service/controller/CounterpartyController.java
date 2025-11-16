@@ -24,7 +24,7 @@ public class CounterpartyController {
         return counterpartyService.getAll().thenApply(ResponseEntity::ok);
     }
 
-    @GetMapping("/{if}")
+    @GetMapping("/{id}")
     public CompletableFuture<ResponseEntity<CounterpartyDto>> getCounterpartyById(@PathVariable Integer id) {
         return counterpartyService.getById(id).thenApply(ResponseEntity::ok);
     }

@@ -22,7 +22,7 @@ public class InventoryController {
         return inventoryService.getAll().thenApply(ResponseEntity::ok);
     }
 
-    @GetMapping("/{if}")
+    @GetMapping("/{id}")
     public CompletableFuture<ResponseEntity<InventoryDto>> getInventoryById(@PathVariable Integer id) {
         return inventoryService.getById(id).thenApply(ResponseEntity::ok);
     }

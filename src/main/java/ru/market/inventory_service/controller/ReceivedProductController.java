@@ -22,7 +22,7 @@ public class ReceivedProductController {
         return receivedProductService.getAll().thenApply(ResponseEntity::ok);
     }
 
-    @GetMapping("/{if}")
+    @GetMapping("/{id}")
     public CompletableFuture<ResponseEntity<ReceivedProductDto>> getReceivedProductById(@PathVariable Integer id) {
         return receivedProductService.getById(id).thenApply(ResponseEntity::ok);
     }

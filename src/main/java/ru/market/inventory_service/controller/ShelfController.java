@@ -22,7 +22,7 @@ public class ShelfController {
         return shelfService.getAll().thenApply(ResponseEntity::ok);
     }
 
-    @GetMapping("/{if}")
+    @GetMapping("/{id}")
     public CompletableFuture<ResponseEntity<ShelfDto>> getShelfById(@PathVariable Integer id) {
         return shelfService.getById(id).thenApply(ResponseEntity::ok);
     }

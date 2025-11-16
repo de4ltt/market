@@ -22,7 +22,7 @@ public class SupplyContractController {
         return supplyContractService.getAll().thenApply(ResponseEntity::ok);
     }
 
-    @GetMapping("/{if}")
+    @GetMapping("/{id}")
     public CompletableFuture<ResponseEntity<SupplyContractDto>> getSupplyContractById(@PathVariable Integer id) {
         return supplyContractService.getById(id).thenApply(ResponseEntity::ok);
     }
