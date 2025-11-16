@@ -1,6 +1,5 @@
 package ru.market.hr_service.repository;
 
-import jdk.jfr.Name;
 import lombok.NonNull;
 import org.mapstruct.Named;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -10,8 +10,7 @@ import lombok.NonNull;
 @NoArgsConstructor
 public class StorageLocationDto {
 
-    @NonNull
-    private Integer storageLocationId;
+    private Integer storageLocationId = null;
 
     @NonNull
     private String name;

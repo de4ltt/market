@@ -10,8 +10,7 @@ import lombok.NonNull;
 @NoArgsConstructor
 public class ProductStorageDto {
 
-    @NonNull
-    private Integer productStorageId;
+    private Integer productStorageId = null;
 
     @NonNull
     private Integer shelfId;

@@ -3,7 +3,7 @@ package ru.market.pricing_service.model.dto
 import java.time.LocalDate
 
 data class PriceListDto(
-    val priceListId: Int,
+    val priceListId: Int? = null,
     val type: String,
     val effectiveDate: LocalDate,
     val endDate: LocalDate

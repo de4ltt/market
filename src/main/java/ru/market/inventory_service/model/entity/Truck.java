@@ -28,7 +28,7 @@ public class Truck {
     @Column(precision = 10, scale = 2, nullable = false)
     private BigDecimal capacity;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee driver;
 }

@@ -19,7 +19,7 @@ public class Shelf {
     @Column(length = 100, nullable = false)
     private String name;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "storage_location_id", nullable = false)
     private StorageLocation storageLocation;
 
