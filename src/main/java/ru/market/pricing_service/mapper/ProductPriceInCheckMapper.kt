@@ -14,9 +14,9 @@ interface ProductPriceInCheckMapper {
     @Mapping(target = "discountId", source = "discount.discountId")
     fun toDto(entity: ProductPriceInCheck): ProductPriceInCheckDto
 
-    @Mapping(target = "product", source = "productId")
-    @Mapping(target = "check", source = "checkId")
-    @Mapping(target = "priceList", source = "priceListId")
-    @Mapping(target = "discount", source = "discountId")
+    @Mapping(target = "product", source = "productId", qualifiedByName = ["productById"])
+    @Mapping(target = "check", source = "checkId", qualifiedByName = ["checkById"])
+    @Mapping(target = "priceList", source = "priceListId", qualifiedByName = ["priceListById"])
+    @Mapping(target = "discount", source = "discountId", qualifiedByName = ["discountById"])
     fun toEntity(dto: ProductPriceInCheckDto): ProductPriceInCheck
 }

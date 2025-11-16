@@ -27,5 +27,13 @@ public class MarketExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(body);
     }
+
+    @ExceptionHandler(Throwable.class)
+    public ResponseEntity<MarketException> handleThrowable(Throwable e) {
+        MarketException body = new MarketException(e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(body);
+    }
 }
 
