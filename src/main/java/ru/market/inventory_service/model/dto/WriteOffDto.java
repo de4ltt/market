@@ -12,8 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class WriteOffDto {
 
-    @NonNull
-    private Integer writeOffId;
+    private Integer writeOffId = null;
 
     @NonNull
     private Integer employeeId;

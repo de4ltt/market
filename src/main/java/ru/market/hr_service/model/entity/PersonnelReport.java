@@ -22,7 +22,7 @@ public class PersonnelReport {
     @Column(nullable = false)
     private LocalDate date;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "employee_id", nullable = false, insertable = false, updatable = false)
     private Employee director;
 

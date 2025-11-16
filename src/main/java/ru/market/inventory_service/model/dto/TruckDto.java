@@ -12,8 +12,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class TruckDto {
 
-    @NonNull
-    private Integer truckId;
+    private Integer truckId = null;
 
     @NonNull
     private String licencePlate;

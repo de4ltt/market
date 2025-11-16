@@ -18,7 +18,7 @@ public class Vacation {
     @GeneratedValue
     private Integer vacationId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 

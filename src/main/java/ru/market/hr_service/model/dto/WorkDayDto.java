@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -15,8 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class WorkDayDto {
 
-    @NonNull
-    private Integer workDayId;
+    private Integer workDayId = null;
 
     @NonNull
     private Integer employeeId;

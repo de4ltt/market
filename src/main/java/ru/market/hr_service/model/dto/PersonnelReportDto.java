@@ -13,8 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class PersonnelReportDto {
 
-    @NonNull
-    private Integer personnelReportId;
+    private Integer personnelReportId = null;
 
     @NonNull
     private LocalDate date;
