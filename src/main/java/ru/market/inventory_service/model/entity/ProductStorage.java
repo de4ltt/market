@@ -16,11 +16,11 @@ public class ProductStorage {
     @GeneratedValue
     private Integer productStorageId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "shelf_id", nullable = false)
     private Shelf shelf;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 }

@@ -1,9 +1,9 @@
 package ru.market.inventory_service.controller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.market.inventory_service.exception.FailedToRetrieveProductsException;
 import ru.market.inventory_service.model.dto.ProductDto;
 import ru.market.inventory_service.service.ProductService;
 
@@ -18,29 +18,31 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public CompletableFuture<ResponseEntity<List<ProductDto>>> getAllProducts() {
-        return productService.getAllProducts().handle((result, throwable) -> {
-           if (throwable != null)
-               throw new FailedToRetrieveProductsException();
-           else return ResponseEntity.ok(result);
-        });
+    public CompletableFuture<ResponseEntity<List<ProductDto>>> getProductsByQuery(@RequestParam(defaultValue = "") String q) {
+        if (q.isEmpty())
+            return productService.getAll().thenApply(ResponseEntity::ok);
+        else
+            return productService.getProductsByQuery(q).thenApply(ResponseEntity::ok);
     }
 
     @GetMapping("/{id}")
     public CompletableFuture<ResponseEntity<ProductDto>> getProductById(@PathVariable Integer id) {
-        return productService.getProductById(id).handle((result, throwable) -> {
-            if (throwable != null)
-                throw new FailedToRetrieveProductsException();
-            else return ResponseEntity.ok(result);
-        });
+        return productService.getById(id).thenApply(ResponseEntity::ok);
     }
 
-    @GetMapping
-    public CompletableFuture<ResponseEntity<List<ProductDto>>> getProductsByQuery(@RequestParam(defaultValue = "") String q) {
-        return productService.getProductsByQuery(q).handle((result, throwable) -> {
-            if (throwable != null)
-                throw new FailedToRetrieveProductsException();
-            else return ResponseEntity.ok(result);
-        });
+    @PostMapping
+    public CompletableFuture<ResponseEntity<ProductDto>> addProduct(@RequestBody ProductDto product) {
+        return productService.add(product).thenApply(ResponseEntity::ok);
+    }
+
+    @PutMapping("/{id}")
+    public CompletableFuture<ResponseEntity<ProductDto>> updateProduct(
+            @PathVariable Integer id,
+            @RequestBody ProductDto product
+    ) { return productService.updateById(id, product).thenApply(ResponseEntity::ok); }
+
+    @DeleteMapping("/{id}")
+    public CompletableFuture<ResponseEntity<Void>> deleteProductById(@PathVariable Integer id) {
+        return productService.deleteById(id).thenApply((ignored) -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
     }
 }

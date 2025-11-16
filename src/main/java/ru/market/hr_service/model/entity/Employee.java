@@ -33,7 +33,7 @@ public class Employee {
     @Column(nullable = false)
     private LocalDate birthDate;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "position_id", nullable = false)
     private Position position;
 

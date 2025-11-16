@@ -10,7 +10,6 @@ import lombok.NonNull;
 @NoArgsConstructor
 public class CounterpartyDto {
 
-    @NonNull
     private Integer counterpartyId;
 
     @NonNull

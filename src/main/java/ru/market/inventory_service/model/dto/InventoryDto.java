@@ -12,8 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class InventoryDto {
 
-    @NonNull
-    private Integer inventoryId;
+    private Integer inventoryId = null;
 
     @NonNull
     private LocalDate date;
