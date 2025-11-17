@@ -10,14 +10,14 @@ import ru.market.inventory_service.exception.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public abstract class InventoryCRUDService<Entity, Dto> {
+public abstract class MarketInventoryCRUDService<Entity, Dto> {
 
     private final Class<Entity> entityClass;
     private final JpaRepository<Entity, Integer> entityRepository;
     private final EntityMapper<Entity, Dto> entityMapper;
 
     @SuppressWarnings("unchecked")
-    public InventoryCRUDService(JpaRepository<Entity, Integer> entityRepository, EntityMapper<Entity, Dto> entityMapper) {
+    public MarketInventoryCRUDService(JpaRepository<Entity, Integer> entityRepository, EntityMapper<Entity, Dto> entityMapper) {
         this.entityRepository = entityRepository;
         this.entityMapper = entityMapper;
         
@@ -60,6 +60,18 @@ public abstract class InventoryCRUDService<Entity, Dto> {
             if (throwable != null)
                 throw new FailedToSaveEntityException(entityClass.getSimpleName());
             else return entityMapper.toDto(result);
+        });
+    }
+
+    @Async
+    @Transactional
+    public CompletableFuture<List<Dto>> addAll(List<Dto> entityList) {
+        return CompletableFuture.completedFuture(
+                entityRepository.saveAll(entityList.parallelStream().map(entityMapper::toEntity).toList())
+        ).handle((result, throwable) -> {
+            if (throwable != null)
+                throw new FailedToSaveEntitiesException(entityClass.getSimpleName());
+            else return result.parallelStream().map(entityMapper::toDto).toList();
         });
     }
 

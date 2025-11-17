@@ -23,8 +23,7 @@ public class StockOperationDto {
     @NonNull
     private Integer storageLocationId;
 
-    @NonNull
-    private Integer shelfId;
+    private Integer shelfId = null;
 
     @NonNull
     private Integer quantity = 0;

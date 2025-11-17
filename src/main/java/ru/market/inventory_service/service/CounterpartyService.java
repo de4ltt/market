@@ -4,13 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.market.inventory_service.core.service.InventoryCRUDService;
+import ru.market.inventory_service.core.service.MarketInventoryCRUDService;
 import ru.market.inventory_service.exception.EntityNotFoundException;
 import ru.market.inventory_service.mapper.ContactPersonMapper;
 import ru.market.inventory_service.mapper.CounterpartyMapper;
 import ru.market.inventory_service.model.dto.ContactPersonDto;
 import ru.market.inventory_service.model.dto.CounterpartyDto;
-import ru.market.inventory_service.model.entity.ContactPerson;
 import ru.market.inventory_service.model.entity.Counterparty;
 import ru.market.inventory_service.repository.CounterpartyRepository;
 
@@ -19,7 +18,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Service
-public class CounterpartyService extends InventoryCRUDService<Counterparty, CounterpartyDto> {
+public class CounterpartyService extends MarketInventoryCRUDService<Counterparty, CounterpartyDto> {
 
     private final CounterpartyRepository counterpartyRepository;
     private final ContactPersonMapper contactPersonMapper;

@@ -36,9 +36,6 @@ public class Product {
     @Column(length = 50, nullable = false)
     private String unit;
 
-    @Column(nullable = false)
-    private LocalDate expirationDate;
-
     @Column(length = 50, nullable = false)
     private String barcode;
 

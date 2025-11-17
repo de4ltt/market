@@ -33,9 +33,6 @@ public class ProductDto {
     private String unit;
 
     @NonNull
-    private LocalDate expirationDate;
-
-    @NonNull
     private String barcode;
 
     private String additionalInfo;

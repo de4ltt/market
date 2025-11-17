@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.market.inventory_service.core.service.InventoryCRUDService;
+import ru.market.inventory_service.core.service.MarketInventoryCRUDService;
 import ru.market.inventory_service.exception.EntitiesRetrieveException;
 import ru.market.inventory_service.mapper.ProductMapper;
 import ru.market.inventory_service.model.dto.ProductDto;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Service
-public class ProductService extends InventoryCRUDService<Product, ProductDto> {
+public class ProductService extends MarketInventoryCRUDService<Product, ProductDto> {
 
     private final ProductMapper productMapper;
     private final ProductRepository productRepository;

@@ -32,7 +32,7 @@ public class StockOperation {
     private StorageLocation storageLocation;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "shelf_id", nullable = false)
+    @JoinColumn(name = "shelf_id")
     private Shelf shelf;
 
     @Column(nullable = false)
