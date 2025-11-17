@@ -11,7 +11,6 @@ import ru.market.inventory_service.exception.EntityRetrieveException;
 import ru.market.inventory_service.exception.FailedToSaveEntitiesException;
 import ru.market.inventory_service.exception.FailedToSaveEntityException;
 import ru.market.inventory_service.mapper.ReceivedProductMapper;
-import ru.market.inventory_service.mapper.StockOperationMapper;
 import ru.market.inventory_service.model.dto.ReceivedProductDto;
 import ru.market.inventory_service.model.dto.StockOperationDto;
 import ru.market.inventory_service.model.entity.ReceivedProduct;

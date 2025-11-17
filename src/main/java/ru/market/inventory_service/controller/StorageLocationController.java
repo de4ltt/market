@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.market.inventory_service.model.dto.StorageLocationDto;
-import ru.market.inventory_service.model.dto.StorageLocationDto;
 import ru.market.inventory_service.service.StorageLocationService;
 
 import java.util.List;
