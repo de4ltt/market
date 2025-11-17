@@ -23,6 +23,18 @@ public class StorageLocationController {
         return storageLocationService.getAll().thenApply(ResponseEntity::ok);
     }
 
+    @GetMapping("/market")
+    public CompletableFuture<ResponseEntity<StorageLocationDto>> getMarketStorage() {
+        return storageLocationService.getStorageByType(StorageLocationService.StorageType.MARKET)
+                .thenApply(ResponseEntity::ok);
+    }
+
+    @GetMapping("/hub")
+    public CompletableFuture<ResponseEntity<StorageLocationDto>> getHubStorage() {
+        return storageLocationService.getStorageByType(StorageLocationService.StorageType.HUB)
+                .thenApply(ResponseEntity::ok);
+    }
+
     @GetMapping("/{id}")
     public CompletableFuture<ResponseEntity<StorageLocationDto>> getStorageLocationById(@PathVariable Integer id) {
         return storageLocationService.getById(id).thenApply(ResponseEntity::ok);

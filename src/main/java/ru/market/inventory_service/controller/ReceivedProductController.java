@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
-@RequestMapping("/received-product")
+@RequestMapping("/received-products")
 @AllArgsConstructor
 public class ReceivedProductController {
 
@@ -20,6 +20,21 @@ public class ReceivedProductController {
     @GetMapping
     public CompletableFuture<ResponseEntity<List<ReceivedProductDto>>> getAllCounterparties() {
         return receivedProductService.getAll().thenApply(ResponseEntity::ok);
+    }
+
+    @GetMapping("/to-resolve")
+    public CompletableFuture<ResponseEntity<List<ReceivedProductDto>>> getArrivedProducts() {
+        return receivedProductService.getArrivedProducts().thenApply(ResponseEntity::ok);
+    }
+
+    @PostMapping("/to-resolve/reject")
+    public CompletableFuture<ResponseEntity<Void>> rejectProducts(List<ReceivedProductDto> products) {
+        return receivedProductService.refuseProducts(products).thenApply(ResponseEntity::ok);
+    }
+
+    @PostMapping("to-resolve/accept")
+    public CompletableFuture<ResponseEntity<Void>> acceptProducts(Integer employeeId, List<ReceivedProductDto> products) {
+        return receivedProductService.acceptProducts(employeeId, products).thenApply(ResponseEntity::ok);
     }
 
     @GetMapping("/{id}")
