@@ -8,7 +8,6 @@ import ru.market.inventory_service.model.dto.InventoryDto;
 import ru.market.inventory_service.service.InventoryService;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/inventory")
@@ -18,29 +17,28 @@ public class InventoryController {
     private final InventoryService inventoryService;
 
     @GetMapping
-    public CompletableFuture<ResponseEntity<List<InventoryDto>>> getAllCounterparties() {
-        return inventoryService.getAll().thenApply(ResponseEntity::ok);
+    public ResponseEntity<List<InventoryDto>> getAllCounterparties() {
+        return ResponseEntity.ok(inventoryService.getAll());
     }
 
     @GetMapping("/{id}")
-    public CompletableFuture<ResponseEntity<InventoryDto>> getInventoryById(@PathVariable Integer id) {
-        return inventoryService.getById(id).thenApply(ResponseEntity::ok);
+    public ResponseEntity<InventoryDto> getInventoryById(@PathVariable Integer id) {
+        return ResponseEntity.ok(inventoryService.getById(id));
     }
 
     @PostMapping
-    public CompletableFuture<ResponseEntity<InventoryDto>> addInventory(@RequestBody InventoryDto inventoryDto) {
-        return inventoryService.add(inventoryDto).thenApply(
-                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
-        );
+    public ResponseEntity<InventoryDto> addInventory(@RequestBody InventoryDto inventoryDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(inventoryService.add(inventoryDto));
     }
 
     @PutMapping("/{id}")
-    public CompletableFuture<ResponseEntity<InventoryDto>> updateInventoryById(@PathVariable Integer id, @RequestBody InventoryDto inventoryDto) {
-        return inventoryService.updateById(id, inventoryDto).thenApply(ResponseEntity::ok);
+    public ResponseEntity<InventoryDto> updateInventoryById(@PathVariable Integer id, @RequestBody InventoryDto inventoryDto) {
+        return ResponseEntity.ok(inventoryService.updateById(id, inventoryDto));
     }
 
     @DeleteMapping("/{id}")
-    public CompletableFuture<ResponseEntity<Void>> deleteInventoryById(@PathVariable Integer id) {
-        return inventoryService.deleteById(id).thenApply((ignored) -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+    public ResponseEntity<Void> deleteInventoryById(@PathVariable Integer id) {
+        inventoryService.deleteById(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

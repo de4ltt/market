@@ -8,7 +8,6 @@ import ru.market.inventory_service.model.dto.ProductDto;
 import ru.market.inventory_service.service.ProductService;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/products")
@@ -18,33 +17,31 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public CompletableFuture<ResponseEntity<List<ProductDto>>> getProductsByQuery(@RequestParam(defaultValue = "") String q) {
-        if (q.isEmpty())
-            return productService.getAll().thenApply(ResponseEntity::ok);
-        else
-            return productService.getProductsByQuery(q).thenApply(ResponseEntity::ok);
+    public ResponseEntity<List<ProductDto>> getProductsByQuery(@RequestParam(defaultValue = "") String q) {
+        return ResponseEntity.ok(q.isEmpty() ? productService.getAll() : productService.getProductsByQuery(q));
     }
 
     @GetMapping("/{id}")
-    public CompletableFuture<ResponseEntity<ProductDto>> getProductById(@PathVariable Integer id) {
-        return productService.getById(id).thenApply(ResponseEntity::ok);
+    public ResponseEntity<ProductDto> getProductById(@PathVariable Integer id) {
+        return ResponseEntity.ok(productService.getById(id));
     }
 
     @PostMapping
-    public CompletableFuture<ResponseEntity<ProductDto>> addProduct(@RequestBody ProductDto product) {
-        return productService.add(product).thenApply(
-                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
-        );
+    public ResponseEntity<ProductDto> addProduct(@RequestBody ProductDto product) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(productService.add(product));
     }
 
     @PutMapping("/{id}")
-    public CompletableFuture<ResponseEntity<ProductDto>> updateProduct(
+    public ResponseEntity<ProductDto> updateProduct(
             @PathVariable Integer id,
             @RequestBody ProductDto product
-    ) { return productService.updateById(id, product).thenApply(ResponseEntity::ok); }
+    ) {
+        return ResponseEntity.ok(productService.updateById(id, product));
+    }
 
     @DeleteMapping("/{id}")
-    public CompletableFuture<ResponseEntity<Void>> deleteProductById(@PathVariable Integer id) {
-        return productService.deleteById(id).thenApply((ignored) -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+    public ResponseEntity<Void> deleteProductById(@PathVariable Integer id) {
+        productService.deleteById(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

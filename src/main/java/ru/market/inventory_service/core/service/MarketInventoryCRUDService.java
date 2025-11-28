@@ -2,13 +2,11 @@ package ru.market.inventory_service.core.service;
 
 import org.springframework.core.ResolvableType;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
 import ru.market.inventory_service.core.mapper.EntityMapper;
 import ru.market.inventory_service.exception.*;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public abstract class MarketInventoryCRUDService<Entity, Dto> {
 
@@ -20,69 +18,56 @@ public abstract class MarketInventoryCRUDService<Entity, Dto> {
     public MarketInventoryCRUDService(JpaRepository<Entity, Integer> entityRepository, EntityMapper<Entity, Dto> entityMapper) {
         this.entityRepository = entityRepository;
         this.entityMapper = entityMapper;
-        
+
         ResolvableType resolvableType = ResolvableType.forClass(JpaRepository.class, entityRepository.getClass());
         ResolvableType entityType = resolvableType.getGeneric(0);
         this.entityClass = (Class<Entity>) entityType.resolve();
     }
 
-    @Async
     @Transactional(readOnly = true)
-    public CompletableFuture<List<Dto>> getAll() {
-        return CompletableFuture.completedFuture(
-                entityRepository.findAll().parallelStream().map(entityMapper::toDto).toList()
-        ).handle((result, throwable) -> {
-            if (throwable != null)
-                throw new EntitiesRetrieveException(entityClass.getSimpleName());
-            else return result;
-        });
+    public List<Dto> getAll() {
+        try {
+            return entityRepository.findAll().stream().map(entityMapper::toDto).toList();
+        } catch (Exception e) {
+            throw new EntitiesRetrieveException(entityClass.getSimpleName());
+        }
     }
 
-    @Async
     @Transactional(readOnly = true)
-    public CompletableFuture<Dto> getById(Integer id) {
-        return CompletableFuture.completedFuture(
-                entityRepository.findById(id).map(entityMapper::toDto)
-                        .orElseThrow(() -> new EntityNotFoundException(entityClass.getSimpleName(), id))
-        ).handle((result, throwable) -> {
-            if (throwable != null)
-                throw new EntityRetrieveException(entityClass.getSimpleName(), id);
-            else return result;
-        });
+    public Dto getById(Integer id) {
+        try {
+            return entityRepository.findById(id).map(entityMapper::toDto)
+                    .orElseThrow(() -> new EntityNotFoundException(entityClass.getSimpleName(), id));
+        } catch (EntityNotFoundException e) {
+            throw new EntityRetrieveException(entityClass.getSimpleName(), id);
+        }
     }
 
-    @Async
     @Transactional
-    public CompletableFuture<Dto> add(Dto entity) {
-        return CompletableFuture.completedFuture(
-                entityRepository.save(entityMapper.toEntity(entity))
-        ).handle((result, throwable) -> {
-            if (throwable != null)
-                throw new FailedToSaveEntityException(entityClass.getSimpleName());
-            else return entityMapper.toDto(result);
-        });
+    public Dto add(Dto entity) {
+        try {
+            return entityMapper.toDto(entityRepository.save(entityMapper.toEntity(entity)));
+        } catch (Exception e) {
+            throw new FailedToSaveEntityException(entityClass.getSimpleName());
+        }
     }
 
-    @Async
     @Transactional
-    public CompletableFuture<List<Dto>> addAll(List<Dto> entityList) {
-        return CompletableFuture.completedFuture(
-                entityRepository.saveAll(entityList.parallelStream().map(entityMapper::toEntity).toList())
-        ).handle((result, throwable) -> {
-            if (throwable != null)
-                throw new FailedToSaveEntitiesException(entityClass.getSimpleName());
-            else return result.parallelStream().map(entityMapper::toDto).toList();
-        });
+    public List<Dto> addAll(List<Dto> entityList) {
+        try {
+            return entityRepository
+                    .saveAll(entityList.stream().map(entityMapper::toEntity).toList()).stream().map(entityMapper::toDto).toList();
+        } catch (Exception e) {
+            throw new FailedToSaveEntitiesException(entityClass.getSimpleName());
+        }
     }
 
-    @Async
     @Transactional
-    public CompletableFuture<Void> deleteById(Integer id) {
+    public void deleteById(Integer id) {
         try {
             if (entityRepository.existsById(id))
                 entityRepository.deleteById(id);
             else throw new EntityNotFoundException(entityClass.getSimpleName(), id);
-            return CompletableFuture.completedFuture(null);
         } catch (EntityNotFoundException e) {
             throw e;
         } catch (RuntimeException e) {
@@ -90,15 +75,14 @@ public abstract class MarketInventoryCRUDService<Entity, Dto> {
         }
     }
 
-    @Async
     @Transactional
-    public CompletableFuture<Dto> updateById(Integer id, Dto entity) {
+    public Dto updateById(Integer id, Dto entity) {
         try {
             boolean entityExists = entityRepository.existsById(id);
             if (entityExists) {
                 Entity entityEntity = entityMapper.toEntity(entity);
                 entityEntity = entityRepository.save(entityEntity);
-                return CompletableFuture.completedFuture(entityMapper.toDto(entityEntity));
+                return entityMapper.toDto(entityEntity);
             } else throw new EntityNotFoundException(entityClass.getSimpleName(), id);
         } catch (EntityNotFoundException e) {
             throw e;

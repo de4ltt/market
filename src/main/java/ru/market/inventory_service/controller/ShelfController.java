@@ -8,7 +8,6 @@ import ru.market.inventory_service.model.dto.ShelfDto;
 import ru.market.inventory_service.service.ShelfService;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/shelves")
@@ -18,29 +17,28 @@ public class ShelfController {
     private final ShelfService shelfService;
 
     @GetMapping
-    public CompletableFuture<ResponseEntity<List<ShelfDto>>> getAllCounterparties() {
-        return shelfService.getAll().thenApply(ResponseEntity::ok);
+    public ResponseEntity<List<ShelfDto>> getAllCounterparties() {
+        return ResponseEntity.ok(shelfService.getAll());
     }
 
     @GetMapping("/{id}")
-    public CompletableFuture<ResponseEntity<ShelfDto>> getShelfById(@PathVariable Integer id) {
-        return shelfService.getById(id).thenApply(ResponseEntity::ok);
+    public ResponseEntity<ShelfDto> getShelfById(@PathVariable Integer id) {
+        return ResponseEntity.ok(shelfService.getById(id));
     }
 
     @PostMapping
-    public CompletableFuture<ResponseEntity<ShelfDto>> addShelf(@RequestBody ShelfDto shelfDto) {
-        return shelfService.add(shelfDto).thenApply(
-                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
-        );
+    public ResponseEntity<ShelfDto> addShelf(@RequestBody ShelfDto shelfDto) {
+        return  ResponseEntity.status(HttpStatus.CREATED).body(shelfService.add(shelfDto));
     }
 
     @PutMapping("/{id}")
-    public CompletableFuture<ResponseEntity<ShelfDto>> updateShelfById(@PathVariable Integer id, @RequestBody ShelfDto shelfDto) {
-        return shelfService.updateById(id, shelfDto).thenApply(ResponseEntity::ok);
+    public ResponseEntity<ShelfDto> updateShelfById(@PathVariable Integer id, @RequestBody ShelfDto shelfDto) {
+        return ResponseEntity.ok(shelfService.updateById(id, shelfDto));
     }
 
     @DeleteMapping("/{id}")
-    public CompletableFuture<ResponseEntity<Void>> deleteShelfById(@PathVariable Integer id) {
-        return shelfService.deleteById(id).thenApply((ignored) -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+    public ResponseEntity<Void> deleteShelfById(@PathVariable Integer id) {
+        shelfService.deleteById(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
