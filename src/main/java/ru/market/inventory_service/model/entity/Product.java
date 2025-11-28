@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @Entity
 @Table(name = "product")
 @Data
@@ -35,9 +33,6 @@ public class Product {
 
     @Column(length = 50, nullable = false)
     private String unit;
-
-    @Column(nullable = false)
-    private LocalDate expirationDate;
 
     @Column(length = 50, nullable = false)
     private String barcode;

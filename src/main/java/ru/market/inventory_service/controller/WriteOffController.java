@@ -8,7 +8,6 @@ import ru.market.inventory_service.model.dto.WriteOffDto;
 import ru.market.inventory_service.service.WriteOffService;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/write-offs")
@@ -18,29 +17,28 @@ public class WriteOffController {
     private final WriteOffService writeOffService;
 
     @GetMapping
-    public CompletableFuture<ResponseEntity<List<WriteOffDto>>> getAllCounterparties() {
-        return writeOffService.getAll().thenApply(ResponseEntity::ok);
+    public ResponseEntity<List<WriteOffDto>> getAllCounterparties() {
+        return ResponseEntity.ok(writeOffService.getAll());
     }
 
     @GetMapping("/{id}")
-    public CompletableFuture<ResponseEntity<WriteOffDto>> getWriteOffById(@PathVariable Integer id) {
-        return writeOffService.getById(id).thenApply(ResponseEntity::ok);
+    public ResponseEntity<WriteOffDto> getWriteOffById(@PathVariable Integer id) {
+        return ResponseEntity.ok(writeOffService.getById(id));
     }
 
     @PostMapping
-    public CompletableFuture<ResponseEntity<WriteOffDto>> addWriteOff(@RequestBody WriteOffDto writeOffDto) {
-        return writeOffService.add(writeOffDto).thenApply(
-                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
-        );
+    public ResponseEntity<WriteOffDto> addWriteOff(@RequestBody WriteOffDto writeOffDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(writeOffService.add(writeOffDto));
     }
 
     @PutMapping("/{id}")
-    public CompletableFuture<ResponseEntity<WriteOffDto>> updateWriteOffById(@PathVariable Integer id, @RequestBody WriteOffDto writeOffDto) {
-        return writeOffService.updateById(id, writeOffDto).thenApply(ResponseEntity::ok);
+    public ResponseEntity<WriteOffDto> updateWriteOffById(@PathVariable Integer id, @RequestBody WriteOffDto writeOffDto) {
+        return ResponseEntity.ok(writeOffService.updateById(id, writeOffDto));
     }
 
     @DeleteMapping("/{id}")
-    public CompletableFuture<ResponseEntity<Void>> deleteWriteOffById(@PathVariable Integer id) {
-        return writeOffService.deleteById(id).thenApply((ignored) -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+    public ResponseEntity<Void> deleteWriteOffById(@PathVariable Integer id) {
+        writeOffService.deleteById(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

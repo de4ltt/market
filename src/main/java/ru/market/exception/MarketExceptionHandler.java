@@ -15,6 +15,7 @@ public class MarketExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<MarketException> handleProductNotFound(EntityNotFoundException e) {
         MarketException body = new MarketException(e.getMessage());
+        e.printStackTrace(System.out);
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(body);
@@ -23,6 +24,7 @@ public class MarketExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<MarketException> handleFailedToRetrieveProducts(RuntimeException e) {
         MarketException body = new MarketException(e.getMessage());
+        e.printStackTrace(System.out);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(body);
@@ -31,6 +33,7 @@ public class MarketExceptionHandler {
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<MarketException> handleThrowable(Throwable e) {
         MarketException body = new MarketException(e.getMessage());
+        e.printStackTrace(System.out);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(body);

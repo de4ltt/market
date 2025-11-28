@@ -33,6 +33,12 @@ public class ReceivedProduct {
     @Column(length = 100, nullable = false)
     private String status;
 
+    @Column(nullable = false)
+    private Integer quantity = 1;
+
+    @Column(nullable = false)
+    private LocalDate expirationDate;
+
     @Column
     private String comment;
 }
