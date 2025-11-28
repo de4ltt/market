@@ -8,7 +8,6 @@ import ru.market.inventory_service.model.dto.ContactPersonDto;
 import ru.market.inventory_service.service.ContactPersonService;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/contact-persons")
@@ -18,29 +17,28 @@ public class ContactPersonController {
     private final ContactPersonService contactPersonService;
 
     @GetMapping
-    public CompletableFuture<ResponseEntity<List<ContactPersonDto>>> getAllCounterparties() {
-        return contactPersonService.getAll().thenApply(ResponseEntity::ok);
+    public ResponseEntity<List<ContactPersonDto>> getAllCounterparties() {
+        return ResponseEntity.ok(contactPersonService.getAll());
     }
 
     @GetMapping("/{id}")
-    public CompletableFuture<ResponseEntity<ContactPersonDto>> getContactPersonById(@PathVariable Integer id) {
-        return contactPersonService.getById(id).thenApply(ResponseEntity::ok);
+    public ResponseEntity<ContactPersonDto> getContactPersonById(@PathVariable Integer id) {
+        return ResponseEntity.ok(contactPersonService.getById(id));
     }
 
     @PostMapping
-    public CompletableFuture<ResponseEntity<ContactPersonDto>> addContactPerson(@RequestBody ContactPersonDto contactPersonDto) {
-        return contactPersonService.add(contactPersonDto).thenApply(
-                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
-        );
+    public ResponseEntity<ContactPersonDto> addContactPerson(@RequestBody ContactPersonDto contactPersonDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(contactPersonService.add(contactPersonDto));
     }
 
     @PutMapping("/{id}")
-    public CompletableFuture<ResponseEntity<ContactPersonDto>> updateContactPersonById(@PathVariable Integer id, @RequestBody ContactPersonDto contactPersonDto) {
-        return contactPersonService.updateById(id, contactPersonDto).thenApply(ResponseEntity::ok);
+    public ResponseEntity<ContactPersonDto> updateContactPersonById(@PathVariable Integer id, @RequestBody ContactPersonDto contactPersonDto) {
+        return ResponseEntity.ok(contactPersonService.updateById(id, contactPersonDto));
     }
 
     @DeleteMapping("/{id}")
-    public CompletableFuture<ResponseEntity<Void>> deleteContactPersonById(@PathVariable Integer id) {
-        return contactPersonService.deleteById(id).thenApply((ignored) -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+    public ResponseEntity<Void> deleteContactPersonById(@PathVariable Integer id) {
+        contactPersonService.deleteById(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

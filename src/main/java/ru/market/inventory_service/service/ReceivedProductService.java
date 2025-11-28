@@ -2,7 +2,6 @@ package ru.market.inventory_service.service;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.market.inventory_service.core.service.MarketInventoryCRUDService;
@@ -19,7 +18,6 @@ import ru.market.inventory_service.repository.ReceivedProductRepository;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 @Service
@@ -47,51 +45,43 @@ public class ReceivedProductService extends MarketInventoryCRUDService<ReceivedP
     }
 
     @Override
-    @Async
     @Transactional
-    public CompletableFuture<ReceivedProductDto> add(ReceivedProductDto product) {
+    public ReceivedProductDto add(ReceivedProductDto product) {
         try {
             product.setStatus(ReceivedProductStatus.ARRIVED.getName());
-            return CompletableFuture.completedFuture(
-                    receivedProductMapper.toDto(
-                            receivedProductRepository.save(receivedProductMapper.toEntity(product))
-                    )
+            return receivedProductMapper.toDto(
+                    receivedProductRepository.save(receivedProductMapper.toEntity(product))
             );
         } catch (Exception e) {
             throw new FailedToSaveEntityException(ReceivedProduct.class.getSimpleName());
         }
     }
 
-    @Async
     @Transactional(readOnly = true)
-    public CompletableFuture<List<ReceivedProductDto>> getArrivedProducts() {
-        return CompletableFuture.completedFuture(
-                receivedProductRepository.findByStatus(ReceivedProductStatus.ARRIVED.getName())
-                        .parallelStream().map(receivedProductMapper::toDto).toList()
-        ).handle((result, throwable) -> {
-            if (throwable != null)
-                throw new EntitiesRetrieveException(ReceivedProduct.class.getSimpleName());
-            else return result;
-        });
-    }
-
-    @Async
-    @Transactional
-    public CompletableFuture<Void> refuseProducts(List<ReceivedProductDto> products) {
-        return saveProductsWithStatus(products, ReceivedProductStatus.REFUSED);
-    }
-
-    @Async
-    @Transactional
-    public CompletableFuture<Void> acceptProducts(Integer employeeId, List<ReceivedProductDto> products) {
+    public List<ReceivedProductDto> getArrivedProducts() {
         try {
-            final Integer marketStorageLocationId = storageLocationService
-                    .getStorageByType(StorageLocationService.StorageType.MARKET)
-                    .handle((result, throwable) -> {
-                        if (throwable != null)
-                            throw new EntityRetrieveException(StorageLocation.class.getSimpleName(), 0);
-                        else return result.getStorageLocationId();
-                    }).get();
+            return receivedProductRepository.findByStatus(ReceivedProductStatus.ARRIVED.getName())
+                    .stream().map(receivedProductMapper::toDto).toList();
+        } catch (Exception e) {
+            throw new EntitiesRetrieveException(ReceivedProduct.class.getSimpleName());
+        }
+    }
+
+    @Transactional
+    public void refuseProducts(List<ReceivedProductDto> products) {
+        saveProductsWithStatus(products, ReceivedProductStatus.REFUSED);
+    }
+
+    @Transactional
+    public void acceptProducts(Integer employeeId, List<ReceivedProductDto> products) {
+        try {
+            final Integer marketStorageLocationId;
+            try {
+                marketStorageLocationId = storageLocationService
+                        .getStorageByType(StorageLocationService.StorageType.MARKET).getStorageLocationId();
+            } catch (Exception e) {
+                throw new EntityRetrieveException(StorageLocation.class.getSimpleName(), 0);
+            }
 
             Function<List<ReceivedProductDto>, List<StockOperationDto>> mapStoredProducts = productList ->
                     productList.parallelStream().map(receivedProductDto -> {
@@ -108,13 +98,14 @@ public class ReceivedProductService extends MarketInventoryCRUDService<ReceivedP
                     }).toList();
 
             stockOperationService.addAll(mapStoredProducts.apply(products));
-            return saveProductsWithStatus(products, ReceivedProductStatus.ACCEPTED);
+            saveProductsWithStatus(products, ReceivedProductStatus.ACCEPTED);
         } catch (Exception e) {
             throw new FailedToSaveEntityException(ReceivedProduct.class.getSimpleName());
         }
     }
 
-    private CompletableFuture<Void> saveProductsWithStatus(List<ReceivedProductDto> products, ReceivedProductStatus status) throws FailedToSaveEntitiesException {
+    @Transactional
+    private void saveProductsWithStatus(List<ReceivedProductDto> products, ReceivedProductStatus status) throws FailedToSaveEntitiesException {
         try {
             receivedProductRepository.saveAll(
                     products.parallelStream()
@@ -125,7 +116,6 @@ public class ReceivedProductService extends MarketInventoryCRUDService<ReceivedP
         } catch (Exception e) {
             throw new FailedToSaveEntitiesException(ReceivedProduct.class.getSimpleName());
         }
-        return CompletableFuture.completedFuture(null);
     }
 
     @Getter

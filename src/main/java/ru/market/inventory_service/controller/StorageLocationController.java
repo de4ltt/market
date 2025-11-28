@@ -8,7 +8,6 @@ import ru.market.inventory_service.model.dto.StorageLocationDto;
 import ru.market.inventory_service.service.StorageLocationService;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/storage-locations")
@@ -18,42 +17,39 @@ public class StorageLocationController {
     private final StorageLocationService storageLocationService;
 
     @GetMapping
-    public CompletableFuture<ResponseEntity<List<StorageLocationDto>>> getAllStorageLocations() {
-        return storageLocationService.getAll().thenApply(ResponseEntity::ok);
+    public ResponseEntity<List<StorageLocationDto>> getAllStorageLocations() {
+        return ResponseEntity.ok(storageLocationService.getAll());
     }
 
     @GetMapping("/market")
-    public CompletableFuture<ResponseEntity<StorageLocationDto>> getMarketStorage() {
-        return storageLocationService.getStorageByType(StorageLocationService.StorageType.MARKET)
-                .thenApply(ResponseEntity::ok);
+    public ResponseEntity<StorageLocationDto> getMarketStorage() {
+        return ResponseEntity.ok(storageLocationService.getStorageByType(StorageLocationService.StorageType.MARKET));
     }
 
     @GetMapping("/hub")
-    public CompletableFuture<ResponseEntity<StorageLocationDto>> getHubStorage() {
-        return storageLocationService.getStorageByType(StorageLocationService.StorageType.HUB)
-                .thenApply(ResponseEntity::ok);
+    public ResponseEntity<StorageLocationDto> getHubStorage() {
+        return ResponseEntity.ok(storageLocationService.getStorageByType(StorageLocationService.StorageType.HUB));
     }
 
     @GetMapping("/{id}")
-    public CompletableFuture<ResponseEntity<StorageLocationDto>> getStorageLocationById(@PathVariable Integer id) {
-        return storageLocationService.getById(id).thenApply(ResponseEntity::ok);
+    public ResponseEntity<StorageLocationDto> getStorageLocationById(@PathVariable Integer id) {
+        return ResponseEntity.ok(storageLocationService.getById(id));
     }
 
     @PostMapping
-    public CompletableFuture<ResponseEntity<StorageLocationDto>> addStorageLocation(@RequestBody StorageLocationDto storageLocation) {
-        return storageLocationService.add(storageLocation).thenApply(
-                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
-        );
+    public ResponseEntity<StorageLocationDto> addStorageLocation(@RequestBody StorageLocationDto storageLocation) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(storageLocationService.add(storageLocation));
     }
 
     @PutMapping("/{id}")
-    public CompletableFuture<ResponseEntity<StorageLocationDto>> updateStorageLocation(
+    public ResponseEntity<StorageLocationDto> updateStorageLocation(
             @PathVariable Integer id,
             @RequestBody StorageLocationDto storageLocation
-    ) { return storageLocationService.updateById(id, storageLocation).thenApply(ResponseEntity::ok); }
+    ) { return ResponseEntity.ok(storageLocationService.updateById(id, storageLocation)); }
 
     @DeleteMapping("/{id}")
-    public CompletableFuture<ResponseEntity<Void>> deleteStorageLocationById(@PathVariable Integer id) {
-        return storageLocationService.deleteById(id).thenApply((ignored) -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+    public ResponseEntity<Void> deleteStorageLocationById(@PathVariable Integer id) {
+        storageLocationService.deleteById(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

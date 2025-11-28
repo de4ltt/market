@@ -15,7 +15,6 @@ import ru.market.inventory_service.repository.CounterpartyRepository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 public class CounterpartyService extends MarketInventoryCRUDService<Counterparty, CounterpartyDto> {
@@ -30,14 +29,11 @@ public class CounterpartyService extends MarketInventoryCRUDService<Counterparty
         this.contactPersonMapper = contactPersonMapper;
     }
 
-    @Async
     @Transactional(readOnly = true)
-    public CompletableFuture<List<ContactPersonDto>> getCounterpartyContactsById(Integer id) {
+    public List<ContactPersonDto> getCounterpartyContactsById(Integer id) {
         Optional<Counterparty> counterparty = counterpartyRepository.findById(id);
         if (counterparty.isPresent())
-            return CompletableFuture.completedFuture(
-                    counterparty.get().getContactPersonList().parallelStream().map(contactPersonMapper::toDto).toList()
-            );
+            return counterparty.get().getContactPersonList().parallelStream().map(contactPersonMapper::toDto).toList();
         else throw new EntityNotFoundException(Counterparty.class.getSimpleName(), id);
     }
 }

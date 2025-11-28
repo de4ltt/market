@@ -8,7 +8,6 @@ import ru.market.inventory_service.model.dto.TruckDto;
 import ru.market.inventory_service.service.TruckService;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/trucks")
@@ -18,29 +17,28 @@ public class TruckController {
     private final TruckService truckService;
 
     @GetMapping
-    public CompletableFuture<ResponseEntity<List<TruckDto>>> getAllCounterparties() {
-        return truckService.getAll().thenApply(ResponseEntity::ok);
+    public ResponseEntity<List<TruckDto>> getAllCounterparties() {
+        return ResponseEntity.ok(truckService.getAll());
     }
 
     @GetMapping("/{id}")
-    public CompletableFuture<ResponseEntity<TruckDto>> getTruckById(@PathVariable Integer id) {
-        return truckService.getById(id).thenApply(ResponseEntity::ok);
+    public ResponseEntity<TruckDto> getTruckById(@PathVariable Integer id) {
+        return ResponseEntity.ok(truckService.getById(id));
     }
 
     @PostMapping
-    public CompletableFuture<ResponseEntity<TruckDto>> addTruck(@RequestBody TruckDto truckDto) {
-        return truckService.add(truckDto).thenApply(
-                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
-        );
+    public ResponseEntity<TruckDto> addTruck(@RequestBody TruckDto truckDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(truckService.add(truckDto));
     }
 
     @PutMapping("/{id}")
-    public CompletableFuture<ResponseEntity<TruckDto>> updateTruckById(@PathVariable Integer id, @RequestBody TruckDto truckDto) {
-        return truckService.updateById(id, truckDto).thenApply(ResponseEntity::ok);
+    public ResponseEntity<TruckDto> updateTruckById(@PathVariable Integer id, @RequestBody TruckDto truckDto) {
+        return ResponseEntity.ok(truckService.updateById(id, truckDto));
     }
 
     @DeleteMapping("/{id}")
-    public CompletableFuture<ResponseEntity<Void>> deleteTruckById(@PathVariable Integer id) {
-        return truckService.deleteById(id).thenApply((ignored) -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+    public ResponseEntity<Void> deleteTruckById(@PathVariable Integer id) {
+        truckService.deleteById(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

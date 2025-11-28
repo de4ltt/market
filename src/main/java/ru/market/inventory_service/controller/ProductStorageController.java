@@ -8,7 +8,6 @@ import ru.market.inventory_service.model.dto.ProductStorageDto;
 import ru.market.inventory_service.service.ProductStorageService;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/product-storage")
@@ -18,29 +17,28 @@ public class ProductStorageController {
     private final ProductStorageService productStorageService;
 
     @GetMapping
-    public CompletableFuture<ResponseEntity<List<ProductStorageDto>>> getAllCounterparties() {
-        return productStorageService.getAll().thenApply(ResponseEntity::ok);
+    public ResponseEntity<List<ProductStorageDto>> getAllCounterparties() {
+        return ResponseEntity.ok(productStorageService.getAll());
     }
 
     @GetMapping("/{id}")
-    public CompletableFuture<ResponseEntity<ProductStorageDto>> getProductStorageById(@PathVariable Integer id) {
-        return productStorageService.getById(id).thenApply(ResponseEntity::ok);
+    public ResponseEntity<ProductStorageDto> getProductStorageById(@PathVariable Integer id) {
+        return ResponseEntity.ok(productStorageService.getById(id));
     }
 
     @PostMapping
-    public CompletableFuture<ResponseEntity<ProductStorageDto>> addProductStorage(@RequestBody ProductStorageDto productStorageDto) {
-        return productStorageService.add(productStorageDto).thenApply(
-                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
-        );
+    public ResponseEntity<ProductStorageDto> addProductStorage(@RequestBody ProductStorageDto productStorageDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(productStorageService.add(productStorageDto));
     }
 
     @PutMapping("/{id}")
-    public CompletableFuture<ResponseEntity<ProductStorageDto>> updateProductStorageById(@PathVariable Integer id, @RequestBody ProductStorageDto productStorageDto) {
-        return productStorageService.updateById(id, productStorageDto).thenApply(ResponseEntity::ok);
+    public ResponseEntity<ProductStorageDto> updateProductStorageById(@PathVariable Integer id, @RequestBody ProductStorageDto productStorageDto) {
+        return ResponseEntity.ok(productStorageService.updateById(id, productStorageDto));
     }
 
     @DeleteMapping("/{id}")
-    public CompletableFuture<ResponseEntity<Void>> deleteProductStorageById(@PathVariable Integer id) {
-        return productStorageService.deleteById(id).thenApply((ignored) -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+    public ResponseEntity<Void> deleteProductStorageById(@PathVariable Integer id) {
+        productStorageService.deleteById(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

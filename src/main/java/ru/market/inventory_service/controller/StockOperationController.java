@@ -8,7 +8,6 @@ import ru.market.inventory_service.model.dto.StockOperationDto;
 import ru.market.inventory_service.service.StockOperationService;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/stock-operations")
@@ -18,29 +17,28 @@ public class StockOperationController {
     private final StockOperationService stockOperationService;
 
     @GetMapping
-    public CompletableFuture<ResponseEntity<List<StockOperationDto>>> getAllCounterparties() {
-        return stockOperationService.getAll().thenApply(ResponseEntity::ok);
+    public ResponseEntity<List<StockOperationDto>> getAllCounterparties() {
+        return ResponseEntity.status(HttpStatus.CREATED).body(stockOperationService.getAll());
     }
 
     @GetMapping("/{id}")
-    public CompletableFuture<ResponseEntity<StockOperationDto>> getStockOperationById(@PathVariable Integer id) {
-        return stockOperationService.getById(id).thenApply(ResponseEntity::ok);
+    public ResponseEntity<StockOperationDto> getStockOperationById(@PathVariable Integer id) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(stockOperationService.getById(id));
     }
 
     @PostMapping
-    public CompletableFuture<ResponseEntity<StockOperationDto>> addStockOperation(@RequestBody StockOperationDto stockOperationDto) {
-        return stockOperationService.add(stockOperationDto).thenApply(
-                result -> ResponseEntity.status(HttpStatus.CREATED).body(result)
-        );
+    public ResponseEntity<StockOperationDto> addStockOperation(@RequestBody StockOperationDto stockOperationDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(stockOperationService.add(stockOperationDto));
     }
 
     @PutMapping("/{id}")
-    public CompletableFuture<ResponseEntity<StockOperationDto>> updateStockOperationById(@PathVariable Integer id, @RequestBody StockOperationDto stockOperationDto) {
-        return stockOperationService.updateById(id, stockOperationDto).thenApply(ResponseEntity::ok);
+    public ResponseEntity<StockOperationDto> updateStockOperationById(@PathVariable Integer id, @RequestBody StockOperationDto stockOperationDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(stockOperationService.updateById(id, stockOperationDto));
     }
 
     @DeleteMapping("/{id}")
-    public CompletableFuture<ResponseEntity<Void>> deleteStockOperationById(@PathVariable Integer id) {
-        return stockOperationService.deleteById(id).thenApply((ignored) -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+    public ResponseEntity<Void> deleteStockOperationById(@PathVariable Integer id) {
+        stockOperationService.deleteById(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

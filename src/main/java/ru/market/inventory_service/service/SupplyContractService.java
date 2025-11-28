@@ -10,7 +10,7 @@ import ru.market.inventory_service.repository.SupplyContractRepository;
 
 @Service
 public class SupplyContractService extends MarketInventoryCRUDService<SupplyContract, SupplyContractDto> {
-@Autowired
+    @Autowired
     public SupplyContractService(SupplyContractRepository supplyContractRepository, SupplyContractMapper supplyContractMapper) {
         super(supplyContractRepository, supplyContractMapper);
     }
