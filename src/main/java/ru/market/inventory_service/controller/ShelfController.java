@@ -31,6 +31,24 @@ public class ShelfController {
         return  ResponseEntity.status(HttpStatus.CREATED).body(shelfService.add(shelfDto));
     }
 
+    @PostMapping("/in-refrigerator")
+    public ResponseEntity<Void> putProductsInRefrigerator() {
+        //TODO()
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/")
+    public ResponseEntity<Void> putProductsOnRegularShelf() {
+        //TODO()
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/")
+    public ResponseEntity<Void> putProductsOnRegularShelf() {
+        //TODO()
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<ShelfDto> updateShelfById(@PathVariable Integer id, @RequestBody ShelfDto shelfDto) {
         return ResponseEntity.ok(shelfService.updateById(id, shelfDto));

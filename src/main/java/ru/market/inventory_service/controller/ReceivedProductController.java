@@ -34,7 +34,7 @@ public class ReceivedProductController {
 
     @PostMapping("to-resolve/accept")
     public ResponseEntity<Void> acceptProducts(
-            @RequestHeader(value = "X-User-Id", defaultValue = "1") Integer employeeId,
+            @RequestHeader(value = "X-User-Id") Integer employeeId,
             @RequestBody List<ReceivedProductDto> products
     ) {
         receivedProductService.acceptProducts(employeeId, products);

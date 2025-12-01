@@ -76,6 +76,7 @@ public class ReceivedProductService extends MarketInventoryCRUDService<ReceivedP
     public void acceptProducts(Integer employeeId, List<ReceivedProductDto> products) {
         try {
             final Integer marketStorageLocationId;
+
             try {
                 marketStorageLocationId = storageLocationService
                         .getStorageByType(StorageLocationService.StorageType.MARKET).getStorageLocationId();
@@ -84,7 +85,7 @@ public class ReceivedProductService extends MarketInventoryCRUDService<ReceivedP
             }
 
             Function<List<ReceivedProductDto>, List<StockOperationDto>> mapStoredProducts = productList ->
-                    productList.parallelStream().map(receivedProductDto -> {
+                    productList.stream().map(receivedProductDto -> {
                         StockOperationDto stockOperation = new StockOperationDto();
                         stockOperation.setProductId(receivedProductDto.getReceivedProductId());
                         stockOperation.setResponsibleEmployeeId(employeeId);
@@ -108,7 +109,7 @@ public class ReceivedProductService extends MarketInventoryCRUDService<ReceivedP
     private void saveProductsWithStatus(List<ReceivedProductDto> products, ReceivedProductStatus status) throws FailedToSaveEntitiesException {
         try {
             receivedProductRepository.saveAll(
-                    products.parallelStream()
+                    products.stream()
                             .map(receivedProductMapper::toEntity)
                             .peek(product -> product.setStatus(status.getName()))
                             .toList()
