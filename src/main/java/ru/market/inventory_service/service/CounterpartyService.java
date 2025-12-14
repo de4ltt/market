@@ -33,7 +33,7 @@ public class CounterpartyService extends MarketInventoryCRUDService<Counterparty
     public List<ContactPersonDto> getCounterpartyContactsById(Integer id) {
         Optional<Counterparty> counterparty = counterpartyRepository.findById(id);
         if (counterparty.isPresent())
-            return counterparty.get().getContactPersonList().parallelStream().map(contactPersonMapper::toDto).toList();
+            return counterparty.get().getContactPersonList().stream().map(contactPersonMapper::toDto).toList();
         else throw new EntityNotFoundException(Counterparty.class.getSimpleName(), id);
     }
 }

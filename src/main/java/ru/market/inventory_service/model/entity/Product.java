@@ -39,4 +39,7 @@ public class Product {
 
     @Column
     private String additionalInfo;
+
+    @Column(length = 50)
+    private String storageRequirement;
 }
