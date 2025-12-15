@@ -2,9 +2,9 @@ spring:
   application:
     name: market
   datasource:
-    url: jdbc:postgresql://localhost:5432/market
-    username: {your_username}
-    password: {your_pass}
+    url: jdbc:postgresql://localhost:5430/market
+    username: postgres
+    password: OiH56kjlo.
   jpa:
     hibernate:
       ddl-auto: update
