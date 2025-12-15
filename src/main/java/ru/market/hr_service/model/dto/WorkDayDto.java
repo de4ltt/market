@@ -1,9 +1,9 @@
 package ru.market.hr_service.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -13,27 +13,17 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class WorkDayDto {
-
-    private Integer workDayId = null;
-
-    @NonNull
+    private Integer workDayId;
     private Integer employeeId;
-
-    @NonNull
     private LocalDate date;
-
-    @NonNull
+    
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime checkIn;
-
-    @NonNull
+    
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime checkOut;
-
-    @NonNull
-    private BigDecimal hoursWorked = BigDecimal.ZERO;
-
-    @NonNull
-    private BigDecimal overtime = BigDecimal.ZERO;
-
-    @NonNull
-    private BigDecimal underwork = BigDecimal.ZERO;
+    
+    private BigDecimal hoursWorked;
+    private BigDecimal overtime;
+    private BigDecimal underwork;
 }
