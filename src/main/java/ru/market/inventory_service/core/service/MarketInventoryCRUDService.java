@@ -1,5 +1,6 @@
 package ru.market.inventory_service.core.service;
 
+import lombok.Getter;
 import org.springframework.core.ResolvableType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,7 +12,11 @@ import java.util.List;
 public abstract class MarketInventoryCRUDService<Entity, Dto> {
 
     private final Class<Entity> entityClass;
+
+    @Getter
     private final JpaRepository<Entity, Integer> entityRepository;
+
+    @Getter
     private final EntityMapper<Entity, Dto> entityMapper;
 
     @SuppressWarnings("unchecked")

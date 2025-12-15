@@ -35,8 +35,10 @@ public class StorageLocationService extends MarketInventoryCRUDService<StorageLo
 
     @Getter
     public enum StorageType {
+
         HUB("hub"),
-        MARKET("market");
+        MARKET("market"),
+        TRADING_HALL("trading_hall");
 
         private final String typeName;
 

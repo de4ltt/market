@@ -30,8 +30,9 @@ public class ProductDto {
     @NonNull
     private String unit;
 
-    @NonNull
     private String barcode;
 
     private String additionalInfo;
+
+    private String storageRequirement;
 }
