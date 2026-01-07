@@ -3,6 +3,7 @@ package ru.market.hr_service.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +29,7 @@ public class VacationController {
     }
     
     @PostMapping("/{id}/approve")
+    @PreAuthorize("hasRole('DIRECTOR')")
     public ResponseEntity<VacationDto> approveVacation(@PathVariable Integer id) {
         VacationDto approved = vacationService.approveVacation(id);
         return ResponseEntity.ok(approved);
@@ -40,6 +42,7 @@ public class VacationController {
     }
     
     @GetMapping("/pending")
+    @PreAuthorize("hasRole('DIRECTOR')")
     public ResponseEntity<List<VacationDto>> getPendingVacations() {
         List<VacationDto> vacations = vacationService.getPendingVacations();
         return ResponseEntity.ok(vacations);

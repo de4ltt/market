@@ -12,3 +12,10 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+# JWT Configuration (совпадает с Python Gateway)
+jwt:
+  secret-key: "test-secret-key-1234567890-abcdefghijklmnop"
+  algorithm: "HS256"
+  access-token-expire-minutes: 30
+  refresh-token-expire-days: 7

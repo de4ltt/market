@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,6 +36,7 @@ public class TimeTrackingController {
     }
     
     @GetMapping("/{employeeId}/work-days")
+    @PreAuthorize("hasRole('DIRECTOR')")
     public ResponseEntity<List<WorkDayDto>> getWorkDays(
             @PathVariable Integer employeeId,
             @RequestParam LocalDate startDate,
