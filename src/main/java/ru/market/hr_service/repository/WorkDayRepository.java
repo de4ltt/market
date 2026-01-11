@@ -18,5 +18,12 @@ public interface WorkDayRepository extends JpaRepository<WorkDay, Integer> {
     boolean existsByEmployeeEmployeeIdAndDateAndCheckInIsNotNull(Integer employeeId, LocalDate date);
 
     List<WorkDay> findByEmployeeEmployeeIdAndDateBetween(
-            Integer employeeId, LocalDate start, LocalDate end);
+        Integer employeeId, LocalDate start, LocalDate end);
+
+    boolean existsByEmployeeEmployeeIdAndDateAndCheckInIsNotNullAndCheckOutIsNull(
+        Integer employeeId, LocalDate date);
+        
+    // Для check-out
+    Optional<WorkDay> findByEmployeeEmployeeIdAndDateAndCheckInIsNotNullAndCheckOutIsNull(
+        Integer employeeId, LocalDate date);
 }

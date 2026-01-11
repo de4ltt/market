@@ -29,89 +29,108 @@ public class TimeTrackingService {
     private final EmployeeRepository employeeRepository;
     private final WorkDayMapper workDayMapper;
 
+    private static final BigDecimal STANDARD_DAY_HOURS = new BigDecimal("8.00");
+    private static final BigDecimal LUNCH_BREAK_HOURS = new BigDecimal("1.00");
+    private static final BigDecimal TOLERANCE_MINUTES = new BigDecimal("30");
+    private static final BigDecimal MINUTES_IN_HOUR = new BigDecimal("60");
+
     /* ================= CHECK-IN ================= */
-
     public WorkDayDto checkIn(Integer employeeId) {
-
         Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new RuntimeException("Employee not found"));
+                .orElseThrow(() -> new RuntimeException("Сотрудник не найден"));
 
         if ("FIRED".equalsIgnoreCase(employee.getRole())) {
             throw new RuntimeException("Сотрудник уволен");
         }
 
-        boolean hasActiveCheckIn =
-                workDayRepository.existsByEmployeeEmployeeIdAndDateAndCheckInIsNotNull(
-                        employeeId, LocalDate.now());
+        LocalDate today = LocalDate.now();
 
-        if (hasActiveCheckIn) {
-            throw new RuntimeException("У вас уже есть активный вход");
+        // Проверяем, был ли уже check-in сегодня
+        boolean alreadyCheckedIn = workDayRepository
+                .existsByEmployeeEmployeeIdAndDateAndCheckInIsNotNull(employeeId, today);
+
+        if (alreadyCheckedIn) {
+            throw new RuntimeException("Вы уже отмечались сегодня (check-in выполнен)");
         }
 
         WorkDay workDay = workDayRepository
-                .findByEmployeeEmployeeIdAndDate(employeeId, LocalDate.now())
+                .findByEmployeeEmployeeIdAndDate(employeeId, today)
                 .orElseGet(() -> createNewWorkDay(employee));
 
         workDay.setCheckIn(LocalDateTime.now());
-        workDay.setCheckOut(null);
+        // checkOut остаётся null
 
         return workDayMapper.toDto(workDayRepository.save(workDay));
     }
 
     /* ================= CHECK-OUT ================= */
-
     public WorkDayDto checkOut(Integer employeeId) {
+        LocalDate today = LocalDate.now();
 
         WorkDay workDay = workDayRepository
-                .findByEmployeeEmployeeIdAndDateAndCheckInIsNotNull(
-                        employeeId, LocalDate.now())
-                .orElseThrow(() -> new RuntimeException("Нет активного входа"));
+                .findByEmployeeEmployeeIdAndDateAndCheckInIsNotNullAndCheckOutIsNull(
+                        employeeId, today)
+                .orElseThrow(() -> new RuntimeException("Нет активного check-in на сегодня"));
+
+        if (workDay.getCheckOut() != null) {
+            throw new RuntimeException("Check-out уже выполнен сегодня");
+        }
 
         LocalDateTime now = LocalDateTime.now();
         workDay.setCheckOut(now);
 
-        addWorkedTime(workDay);
-        recalcDayStats(workDay);
+        calculateWorkedTimeAndStats(workDay);
 
         return workDayMapper.toDto(workDayRepository.save(workDay));
     }
+    
+    public WorkDayDto checkoutWithZeroOvertime(Integer employeeId) {
+        LocalDate today = LocalDate.now();
 
+        WorkDay workDay = workDayRepository
+            .findByEmployeeEmployeeIdAndDateAndCheckInIsNotNullAndCheckOutIsNull(employeeId, today)
+            .orElseThrow(() -> new RuntimeException("Нет активного check-in на сегодня"));
 
-    private WorkDay createNewWorkDay(Employee employee) {
-        WorkDay wd = new WorkDay();
-        wd.setEmployee(employee);
-        wd.setDate(LocalDate.now());
-        wd.setHoursWorked(BigDecimal.ZERO);
-        wd.setOvertime(BigDecimal.ZERO);
-        wd.setUnderwork(BigDecimal.ZERO);
-        return wd;
+        LocalDateTime now = LocalDateTime.now();
+        workDay.setCheckOut(now);
+
+        // Обычный расчёт отработанного времени (с учётом обеда и допуска ±30 мин)
+        calculateWorkedTimeAndStats(workDay);
+
+        // Главное — обнуляем переработку
+        workDay.setOvertime(BigDecimal.ZERO);
+
+        workDayRepository.save(workDay);
+
+        return workDayMapper.toDto(workDay);
     }
 
-    /**
-     * Прибавляем время текущего входа к уже отработанному
-     */
-    private void addWorkedTime(WorkDay workDay) {
+    private void calculateWorkedTimeAndStats(WorkDay workDay) {
+        if (workDay.getCheckIn() == null || workDay.getCheckOut() == null) {
+            return;
+        }
 
-        Duration duration = Duration.between(
-                workDay.getCheckIn(),
-                workDay.getCheckOut()
-        );
+        Duration presence = Duration.between(workDay.getCheckIn(), workDay.getCheckOut());
 
-        BigDecimal hours = BigDecimal.valueOf(duration.toMinutes())
-                .divide(BigDecimal.valueOf(60), 2, RoundingMode.HALF_UP);
+        // Переводим в часы с двумя знаками после запятой
+        BigDecimal presenceHours = BigDecimal.valueOf(presence.toMinutes())
+                .divide(MINUTES_IN_HOUR, 2, RoundingMode.HALF_UP);
 
-        workDay.setHoursWorked(
-                workDay.getHoursWorked().add(hours)
-        );
-    }
-    private void recalcDayStats(WorkDay workDay) {
+        // Вычитаем обед (1 час)
+        BigDecimal effectiveHours = presenceHours.subtract(LUNCH_BREAK_HOURS);
 
-        BigDecimal standard = BigDecimal.valueOf(8.0);
-        BigDecimal tolerance = BigDecimal.valueOf(0.5);
+        // Если после вычета обеда получилось меньше 0 — ставим 0
+        if (effectiveHours.compareTo(BigDecimal.ZERO) < 0) {
+            effectiveHours = BigDecimal.ZERO;
+        }
 
-        BigDecimal diff = workDay.getHoursWorked().subtract(standard);
+        workDay.setHoursWorked(effectiveHours);
 
-        if (diff.abs().compareTo(tolerance) <= 0) {
+        // Расчёт переработки / недоработки с учётом допуска ±30 минут
+        BigDecimal diff = effectiveHours.subtract(STANDARD_DAY_HOURS);
+
+        // Допуск ±0.5 часа (30 минут)
+        if (diff.abs().compareTo(TOLERANCE_MINUTES.divide(MINUTES_IN_HOUR, 2, RoundingMode.HALF_UP)) <= 0) {
             workDay.setOvertime(BigDecimal.ZERO);
             workDay.setUnderwork(BigDecimal.ZERO);
         } else if (diff.compareTo(BigDecimal.ZERO) > 0) {
@@ -123,12 +142,20 @@ public class TimeTrackingService {
         }
     }
 
+    private WorkDay createNewWorkDay(Employee employee) {
+        WorkDay wd = new WorkDay();
+        wd.setEmployee(employee);
+        wd.setDate(LocalDate.now());
+        wd.setHoursWorked(BigDecimal.ZERO);
+        wd.setOvertime(BigDecimal.ZERO);
+        wd.setUnderwork(BigDecimal.ZERO);
+        return wd;
+    }
 
     public List<WorkDayDto> getEmployeeWorkDays(
             Integer employeeId,
             LocalDate start,
             LocalDate end) {
-
         return workDayRepository
                 .findByEmployeeEmployeeIdAndDateBetween(employeeId, start, end)
                 .stream()

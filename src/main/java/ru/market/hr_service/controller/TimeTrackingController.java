@@ -34,6 +34,12 @@ public class TimeTrackingController {
         WorkDayDto workDay = timeTrackingService.checkOut(employeeId);
         return ResponseEntity.ok(workDay);
     }
+
+    @PostMapping("/checkout/zero-overtime")
+    public ResponseEntity<WorkDayDto> checkoutWithZeroOvertime(@RequestParam Integer employeeId) {
+        WorkDayDto result = timeTrackingService.checkoutWithZeroOvertime(employeeId);
+        return ResponseEntity.ok(result);
+    }
     
     @GetMapping("/{employeeId}/work-days")
     @PreAuthorize("hasRole('DIRECTOR')")

@@ -1,8 +1,11 @@
 package ru.market.hr_service.controller;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +21,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import ru.market.hr_service.model.dto.PersonnelReportDto;
+import ru.market.hr_service.model.entity.PersonnelReport;
 import ru.market.hr_service.service.ReportService;
 
 @RestController
@@ -35,17 +39,16 @@ public class ReportController {
         private BigDecimal manualUnderwork;  // может быть null — значит не меняем
     }
 
-    // Создать черновик отчёта за неделю
-    @PostMapping("/weekly/draft")
+    // Получить отчет за текущую неделю
+    @GetMapping("/current-week")
     @PreAuthorize("hasRole('DIRECTOR')")
-    public ResponseEntity<PersonnelReportDto> createWeeklyDraft(
-            @RequestParam Integer employeeId,
-            @RequestParam Integer directorId) {
-        return ResponseEntity.ok(reportService.generateWeeklyDraft(employeeId, directorId));
+    public ResponseEntity<List<PersonnelReportDto>> getCurrentWeekReports() {
+        List<PersonnelReportDto> reports = reportService.getCurrentWeekReports();
+        return ResponseEntity.ok(reports);
     }
 
-    // Подтвердить отчёт (с корректировкой)
-    @PostMapping("/{reportId}/confirm")
+    // Правка директором отчет по отдельному сотруднику
+    @PostMapping("/{reportId}/update")
     @PreAuthorize("hasRole('DIRECTOR')")
     public ResponseEntity<PersonnelReportDto> confirmReport(
             @PathVariable Integer reportId,
@@ -66,5 +69,14 @@ public class ReportController {
     @PreAuthorize("hasRole('DIRECTOR')")
     public ResponseEntity<List<PersonnelReportDto>> getEmployeeReports(@PathVariable Integer employeeId) {
         return ResponseEntity.ok(reportService.getReportsByEmployee(employeeId));
+    }
+
+    @PostMapping("/confirm-current-week")
+    @PreAuthorize("hasRole('DIRECTOR')")
+    public ResponseEntity<String> confirmAllCurrentWeek(
+            @RequestParam Integer directorId) {
+
+        reportService.confirmAllCurrentWeekReports(directorId);
+        return ResponseEntity.ok("Все отчёты текущей недели подтверждены");
     }
 }
