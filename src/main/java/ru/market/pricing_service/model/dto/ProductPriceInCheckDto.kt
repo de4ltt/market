@@ -10,5 +10,5 @@ data class ProductPriceInCheckDto(
     val discountId: Int,
     val inputPrice: BigDecimal,
     val finalPrice: BigDecimal,
-    val priceType: BigDecimal
+    val priceType: String
 )
