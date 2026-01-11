@@ -8,7 +8,7 @@ import java.math.BigDecimal
 data class ProductPriceInCheck(
     @Id
     @GeneratedValue
-    val productPriceInCheckId: Int,
+    val productPriceInCheckId: Int = 0,
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "product_id", nullable = false)
@@ -28,5 +28,5 @@ data class ProductPriceInCheck(
 
     @Column(precision = 10, scale = 2) val inputPrice: BigDecimal,
     @Column(precision = 10, scale = 2) val finalPrice: BigDecimal,
-    @Column(precision = 10, scale = 2) val priceType: BigDecimal
+    @Column val priceType: String
 )

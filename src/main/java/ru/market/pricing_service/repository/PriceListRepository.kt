@@ -4,9 +4,14 @@ import org.mapstruct.Named
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import ru.market.pricing_service.model.entity.PriceList
+import java.time.LocalDate
 
 @Repository
 interface PriceListRepository : JpaRepository<PriceList, Int> {
     @Named("priceListById")
     override fun getReferenceById(id: Int): PriceList
+
+    fun findByEffectiveDateLessThanEqualAndEndDateGreaterThanEqual(
+        date1: LocalDate, date2: LocalDate
+    ): List<PriceList>
 }

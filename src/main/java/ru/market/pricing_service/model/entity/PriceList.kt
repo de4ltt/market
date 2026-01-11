@@ -10,7 +10,7 @@ import java.time.LocalDate
 data class PriceList(
     @Id
     @GeneratedValue
-    val priceListId: Int,
+    val priceListId: Int = 0,
 
     @Column(length = 50) val type: String,
     @Column val effectiveDate: LocalDate,
