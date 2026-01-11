@@ -12,5 +12,11 @@ public interface VacationRepository extends JpaRepository<Vacation, Integer> {
     List<Vacation> findByEmployeeEmployeeId(Integer employeeId);
     List<Vacation> findByApprovedFalse();
     List<Vacation> findByStartDateBetween(LocalDate start, LocalDate end);
+    List<Vacation> findByEmployeeEmployeeIdAndTypeAndStartDateBetween(
+        Integer employeeId,
+        String type,
+        LocalDate start,
+        LocalDate end
+    );
 }
 

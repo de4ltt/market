@@ -1,5 +1,7 @@
 package ru.market.hr_service.mapper;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import ru.market.hr_service.model.dto.PersonnelReportDto;
@@ -16,4 +18,5 @@ public interface PersonnelReportMapper {
     @Mapping(target = "director", source = "employeeId", qualifiedByName = "employeeById")
     @Mapping(target = "employee", source = "employeeId", qualifiedByName = "employeeById")
     PersonnelReport toEntity(PersonnelReportDto dto);
+    List<PersonnelReportDto> toDtoList(List<PersonnelReport> reports);
 }

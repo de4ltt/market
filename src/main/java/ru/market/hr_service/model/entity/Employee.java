@@ -58,4 +58,8 @@ public class Employee {
     @Column(length = 100, nullable = false)
     private String email;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "template_id", nullable = false)
+    private WorkScheduleTemplate template;
+
 }
