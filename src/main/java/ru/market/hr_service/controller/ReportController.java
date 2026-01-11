@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,6 +37,7 @@ public class ReportController {
 
     // Создать черновик отчёта за неделю
     @PostMapping("/weekly/draft")
+    @PreAuthorize("hasRole('DIRECTOR')")
     public ResponseEntity<PersonnelReportDto> createWeeklyDraft(
             @RequestParam Integer employeeId,
             @RequestParam Integer directorId) {
@@ -44,6 +46,7 @@ public class ReportController {
 
     // Подтвердить отчёт (с корректировкой)
     @PostMapping("/{reportId}/confirm")
+    @PreAuthorize("hasRole('DIRECTOR')")
     public ResponseEntity<PersonnelReportDto> confirmReport(
             @PathVariable Integer reportId,
             @RequestParam Integer directorId,
@@ -60,6 +63,7 @@ public class ReportController {
     }
 
     @GetMapping("/employee/{employeeId}")
+    @PreAuthorize("hasRole('DIRECTOR')")
     public ResponseEntity<List<PersonnelReportDto>> getEmployeeReports(@PathVariable Integer employeeId) {
         return ResponseEntity.ok(reportService.getReportsByEmployee(employeeId));
     }

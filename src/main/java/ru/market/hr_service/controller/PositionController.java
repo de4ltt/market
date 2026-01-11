@@ -2,6 +2,7 @@ package ru.market.hr_service.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.market.hr_service.model.entity.Position;
 import ru.market.hr_service.service.PositionService;
@@ -17,12 +18,14 @@ public class PositionController {
 
     // Справочник всех должностей / ставок
     @GetMapping
+    @PreAuthorize("hasRole('DIRECTOR')")
     public ResponseEntity<List<Position>> getAll() {
         return ResponseEntity.ok(positionService.getAllPositions());
     }
 
     // Одна должность по id
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('DIRECTOR')")
     public ResponseEntity<Position> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(positionService.getById(id));
     }
