@@ -62,4 +62,7 @@ public class Employee {
     @JoinColumn(name = "template_id", nullable = false)
     private WorkScheduleTemplate template;
 
+    public Integer getEmployeeId() {
+        return this.employeeId;
+    }
 }

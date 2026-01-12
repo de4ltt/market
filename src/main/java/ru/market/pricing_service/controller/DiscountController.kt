@@ -20,7 +20,7 @@ import java.net.URI
 @Validated
 @RestController
 @RequestMapping("/discounts")
-class DiscountController(
+open class DiscountController(
     private val service: DiscountService
 ) {
 

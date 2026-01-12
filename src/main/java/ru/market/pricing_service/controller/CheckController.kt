@@ -12,7 +12,7 @@ import java.net.URI
 @Validated
 @RestController
 @RequestMapping("/checks")
-class CheckController(
+open class CheckController(
     private val service: CheckService
 ) {
 

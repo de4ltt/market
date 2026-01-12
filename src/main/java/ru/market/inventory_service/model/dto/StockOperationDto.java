@@ -39,4 +39,44 @@ public class StockOperationDto {
 
     @NonNull
     private LocalDate timestamp;
+
+    public Integer getStockOperationId() {
+        return stockOperationId;
+    }
+
+    public @NonNull Integer getProductId() {
+        return productId;
+    }
+
+    public @NonNull Integer getResponsibleEmployeeId() {
+        return responsibleEmployeeId;
+    }
+
+    public @NonNull Integer getStorageLocationId() {
+        return storageLocationId;
+    }
+
+    public Integer getShelfId() {
+        return shelfId;
+    }
+
+    public @NonNull Integer getQuantity() {
+        return quantity;
+    }
+
+    public @NonNull String getOperationType() {
+        return operationType;
+    }
+
+    public @NonNull LocalDate getExpiryDate() {
+        return expiryDate;
+    }
+
+    public @NonNull String getReason() {
+        return reason;
+    }
+
+    public @NonNull LocalDate getTimestamp() {
+        return timestamp;
+    }
 }

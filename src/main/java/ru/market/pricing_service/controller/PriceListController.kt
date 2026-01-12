@@ -12,7 +12,7 @@ import java.net.URI
 @Validated
 @RestController
 @RequestMapping("/price-lists")
-class PriceListController(
+open class PriceListController(
     private val service: PriceListService
 ) {
 

@@ -20,4 +20,20 @@ public class StorageLocationDto {
 
     @NonNull
     private String address;
+
+    public Integer getStorageLocationId() {
+        return storageLocationId;
+    }
+
+    public @NonNull String getName() {
+        return name;
+    }
+
+    public @NonNull String getType() {
+        return type;
+    }
+
+    public @NonNull String getAddress() {
+        return address;
+    }
 }

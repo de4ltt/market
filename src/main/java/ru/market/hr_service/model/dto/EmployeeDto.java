@@ -52,4 +52,9 @@ public class EmployeeDto {
 
     @NonNull
     private String email;
+
+    @NonNull
+    public String getRole() {
+        return role;
+    }
 }

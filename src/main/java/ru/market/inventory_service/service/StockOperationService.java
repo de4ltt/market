@@ -16,7 +16,6 @@ public class StockOperationService extends MarketInventoryCRUDService<StockOpera
         super(stockOperationRepository, stockOperationMapper);
     }
 
-    @Getter
     public enum StockOperationType {
         ADD("add"),
         REMOVE("remove");
@@ -25,6 +24,10 @@ public class StockOperationService extends MarketInventoryCRUDService<StockOpera
 
         StockOperationType(String type) {
             this.type = type;
+        }
+
+        public String getType() {
+            return type;
         }
     }
 }

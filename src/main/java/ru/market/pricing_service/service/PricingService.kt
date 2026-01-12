@@ -10,6 +10,10 @@ import ru.market.inventory_service.repository.ProductRepository
 import ru.market.inventory_service.service.ProductService
 import ru.market.inventory_service.service.StockOperationService
 import ru.market.inventory_service.service.StorageLocationService
+import ru.market.pricing_service.model.dto.CouponDto
+import ru.market.pricing_service.model.dto.PriceOrderResponse
+import ru.market.pricing_service.model.dto.PriceTag
+import ru.market.pricing_service.model.dto.StopListItemDto
 import ru.market.pricing_service.model.entity.PriceList
 import ru.market.pricing_service.model.entity.ProductPriceInCheck
 import ru.market.pricing_service.repository.CheckRepository
@@ -21,43 +25,9 @@ import java.math.RoundingMode
 import java.time.LocalDate
 import java.time.LocalTime
 
-
-data class PriceOrderRequest(
-    val directorId: Int
-)
-
-data class StopListItemDto(
-    val productId: Int,
-    val reason: String,
-    val date: LocalDate
-)
-
-data class PriceTag(
-    val productName: String,
-    val price: BigDecimal,
-    val tagType: String, // белый, желтый, акционный
-    val regularPrice: BigDecimal,
-    val promoDescription: String? = null // Добавлено для поддержки описания специальных акций типа "1+1", "2+1" и т.д.
-)
-
-data class CouponDto(
-    val batchId: Int,
-    val expiryDate: LocalDate,
-    val discountSize: BigDecimal,
-    val comment: String
-)
-
-data class PriceOrderResponse(
-    val updatedProducts: List<ProductDto>,
-    val stopList: List<StopListItemDto>,
-    val printPriceTags: List<PriceTag>,
-    val printCoupons: List<CouponDto>
-)
-
-
 @Service
 @Transactional
-class PricingService(
+open class PricingService(
     private val productService: ProductService,
     private val stockOperationService: StockOperationService,
     private val storageLocationService: StorageLocationService,
@@ -395,7 +365,11 @@ class PricingService(
                             batchId = batch.id,
                             expiryDate = batch.expiryDate,
                             discountSize = COUPON_DISCOUNT,
-                            comment = "Близкий срок годности (осталось ${batch.remaining} шт.) — скидка ${COUPON_DISCOUNT.multiply(BigDecimal(100))}%"
+                            comment = "Близкий срок годности (осталось ${batch.remaining} шт.) — скидка ${
+                                COUPON_DISCOUNT.multiply(
+                                    BigDecimal(100)
+                                )
+                            }%"
                         )
                     )
                 }

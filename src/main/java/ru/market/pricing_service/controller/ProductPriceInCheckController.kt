@@ -20,7 +20,7 @@ import java.net.URI
 @Validated
 @RestController
 @RequestMapping("/product-price-in-checks")
-class ProductPriceInCheckController(
+open class ProductPriceInCheckController(
     private val service: ProductPriceInCheckService
 ) {
 

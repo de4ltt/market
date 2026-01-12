@@ -42,4 +42,44 @@ public class Product {
 
     @Column(length = 50)
     private String storageRequirement;
+
+    public Integer getProductId() {
+        return productId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getManufacturerName() {
+        return manufacturerName;
+    }
+
+    public String getManufacturerCountry() {
+        return manufacturerCountry;
+    }
+
+    public String getManufacturerCode() {
+        return manufacturerCode;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public String getBarcode() {
+        return barcode;
+    }
+
+    public String getAdditionalInfo() {
+        return additionalInfo;
+    }
+
+    public String getStorageRequirement() {
+        return storageRequirement;
+    }
 }
