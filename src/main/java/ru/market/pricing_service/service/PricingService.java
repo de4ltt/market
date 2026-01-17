@@ -93,7 +93,7 @@ public class PricingService {
 
     public PriceOrderResponse formPrices(int directorId) {
         EmployeeDto director = employeeService.getEmployee(directorId);
-        if (!"DIRECTOR".equalsIgnoreCase(director.getRole())) {
+        if (!"директор".equalsIgnoreCase(director.getRole())) {
             throw new RuntimeException("Only director can initiate price order");
         }
 
