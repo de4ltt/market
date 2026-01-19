@@ -1,9 +1,12 @@
 package ru.market.pricing_service.service;
 
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.market.hr_service.model.dto.EmployeeDto;
+import ru.market.hr_service.model.entity.Employee;
+import ru.market.hr_service.repository.EmployeeRepository;
 import ru.market.hr_service.service.EmployeeService;
 import ru.market.inventory_service.model.dto.ProductDto;
 import ru.market.inventory_service.model.dto.StockOperationDto;
@@ -29,18 +32,19 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.*;
 
+
 @Service
 @Transactional
+@Slf4j
 public class PricingService {
 
-    private static final int CURRENT_PRICE_CHECK_ID = 0;
-    private static final int NO_DISCOUNT_ID = 0;
     private static final String REGULAR_TYPE = "регулярная";
     private static final String MARKDOWN_AUTO_TYPE = "уценочная_авто";
     private static final String ADD_OPERATION_TYPE = "add";
@@ -52,12 +56,14 @@ public class PricingService {
     private static final BigDecimal AUTO_MARKDOWN_COEFFICIENT = new BigDecimal("0.75");
     private static final long SALES_PERIOD_DAYS = 7L;
 
+    // key -> (maxMarkupPercent, maxDailyChangePercent)
     private final Map<String, Pair<BigDecimal, BigDecimal>> restrictedKeywordsToRestrictions = Map.of(
             "детск", new Pair<>(new BigDecimal("15"), new BigDecimal("5")),
             "молочн", new Pair<>(new BigDecimal("15"), new BigDecimal("5")),
             "хлеб", new Pair<>(new BigDecimal("15"), new BigDecimal("5"))
     );
 
+    // базовые значения: (maxMarkupPercent, maxDailyChangePercent)
     private final Pair<BigDecimal, BigDecimal> defaultRestriction = new Pair<>(new BigDecimal("1000"), new BigDecimal("90"));
 
     private final ProductService productService;
@@ -69,17 +75,21 @@ public class PricingService {
     private final CheckRepository checkRepository;
     private final ProductRepository productRepository;
     private final DiscountRepository discountRepository;
+    private final EmployeeRepository employeeRepository; // предполагается в проекте
 
     @Autowired
-    public PricingService(ProductService productService,
-                          StockOperationService stockOperationService,
-                          StorageLocationService storageLocationService,
-                          EmployeeService employeeService,
-                          PriceListRepository priceListRepository,
-                          ProductPriceInCheckRepository productPriceInCheckRepository,
-                          CheckRepository checkRepository,
-                          ProductRepository productRepository,
-                          DiscountRepository discountRepository) {
+    public PricingService(
+        ProductService productService,
+        StockOperationService stockOperationService,
+        StorageLocationService storageLocationService,
+        EmployeeService employeeService,
+        PriceListRepository priceListRepository,
+        ProductPriceInCheckRepository productPriceInCheckRepository,
+        CheckRepository checkRepository,
+        ProductRepository productRepository,
+        DiscountRepository discountRepository,
+        EmployeeRepository employeeRepository
+    ) {
         this.productService = productService;
         this.stockOperationService = stockOperationService;
         this.storageLocationService = storageLocationService;
@@ -89,41 +99,49 @@ public class PricingService {
         this.checkRepository = checkRepository;
         this.productRepository = productRepository;
         this.discountRepository = discountRepository;
+        this.employeeRepository = employeeRepository;
     }
 
+    /**
+     * Формирование приказа директором (08:00-09:00 локального времени).
+     * Возвращает объект с изменёнными товарами, стоп-листом, ценниками и купонами.
+     */
     public PriceOrderResponse formPrices(int directorId) {
-        EmployeeDto director = employeeService.getEmployee(directorId);
-        if (!"директор".equalsIgnoreCase(director.getRole())) {
+        EmployeeDto directorDto = employeeService.getEmployee(directorId);
+        if (directorDto == null || !"директор".equalsIgnoreCase(directorDto.getRole())) {
             throw new RuntimeException("Only director can initiate price order");
         }
 
-        LocalTime now = LocalTime.now();
-        if (now.isBefore(LocalTime.of(8, 0)) || now.isAfter(LocalTime.of(9, 0))) {
-            throw new RuntimeException("Price order can only be formed between 08:00 and 09:00");
+        ZoneId storeZone = ZoneId.systemDefault();
+        LocalTime nowLocal = LocalTime.now(storeZone);
+        if (nowLocal.isBefore(LocalTime.of(8, 0)) || nowLocal.isAfter(LocalTime.of(9, 0))) {
+            throw new RuntimeException("Price order can only be formed between 08:00 and 09:00 local time");
         }
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(storeZone);
         LocalDate yesterday = today.minusDays(1);
 
-        Map<Integer, BigDecimal> previousMinPrices = getCurrentMinPrices(yesterday);
+        // Получаем/создаём Check для сегодняшнего приказа (связан с директором)
+        Check currentCheck = getOrCreateCheckForDate(today, directorId);
+
+        // Получаем минимальные цены за вчерашний день
+        Map<Integer, BigDecimal> previousMinPrices = getMinPricesForDate(yesterday);
 
         List<StockOperationDto> allOperations = stockOperationService.getAll();
         Map<Integer, String> locationTypeMap = storageLocationService.getAll().stream()
                 .filter(loc -> loc.getStorageLocationId() != null)
                 .collect(Collectors.toMap(StorageLocationDto::getStorageLocationId, StorageLocationDto::getType));
 
-        // Автоуценка теперь возвращает список заблокированных товаров (нарушение наценки)
-        List<StopListItemDto> blockedFromAutoMarkdown = generateAutoMarkdowns(today, allOperations, locationTypeMap);
+        // Автоуценки: создают новые записи в currentCheck или возвращают список заблокированных продуктов
+        List<StopListItemDto> blockedFromAutoMarkdown = generateAutoMarkdowns(today, allOperations, locationTypeMap, currentCheck);
 
         List<ProductDto> updatedProducts = new ArrayList<>();
         List<StopListItemDto> stopList = new ArrayList<>();
-        stopList.addAll(blockedFromAutoMarkdown); // Добавляем заблокированные автоуценки в общий стоп-лист
+        stopList.addAll(blockedFromAutoMarkdown);
         List<PriceTag> priceTags = new ArrayList<>();
         List<CouponDto> coupons = new ArrayList<>();
 
         List<ProductDto> productDtos = productService.getAll();
-
-        Check currentCheck = checkRepository.getReferenceById(CURRENT_PRICE_CHECK_ID);
 
         for (ProductDto productDto : productDtos) {
             Integer productId = productDto.getProductId();
@@ -140,6 +158,7 @@ public class PricingService {
 
             if (activeRecords.isEmpty()) continue;
 
+            // 1) выбираем минимальную финальную цену среди всех активных прайс-листов
             ProductPriceInCheck effectiveRecord = activeRecords.stream()
                     .min(Comparator.comparing(ProductPriceInCheck::getFinalPrice))
                     .orElse(null);
@@ -151,63 +170,85 @@ public class PricingService {
 
             BigDecimal previousPrice = previousMinPrices.getOrDefault(productId, effectivePrice);
 
-            if (!effectivePrice.equals(previousPrice)) {
+            if (effectivePrice.compareTo(previousPrice) != 0) {
                 updatedProducts.add(productDto);
             }
 
-            // Ограничения (наценка + изменение цены, кроме автоуценки при снижении)
             Pair<BigDecimal, BigDecimal> restrictions = getRestrictionsForProduct(productDto);
-            BigDecimal maxMarkupPct = restrictions.getLeft();
-            BigDecimal maxChangePct = restrictions.getRight();
+            BigDecimal maxMarkupPct = restrictions.getLeft();  // проценты
+            BigDecimal maxChangePct = restrictions.getRight(); // проценты
 
-            BigDecimal inputPrice = effectiveRecord.getInputPrice();
+            BigDecimal inputPrice = effectiveRecord.getInputPrice() == null ? BigDecimal.ZERO : effectiveRecord.getInputPrice();
             BigDecimal maxAllowedMarkupPrice = inputPrice.multiply(BigDecimal.ONE.add(maxMarkupPct.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP)));
 
-            boolean markupOk = effectivePrice.compareTo(maxAllowedMarkupPrice) <= 0;
-
             boolean isDecrease = effectivePrice.compareTo(previousPrice) < 0;
-            boolean isAutoMarkdown = isDecrease && MARKDOWN_AUTO_TYPE.equals(effectiveType);
+            boolean isAutoMarkdown = isDecrease && MARKDOWN_AUTO_TYPE.equalsIgnoreCase(effectiveType);
 
-            boolean changeOk = isAutoMarkdown ||
-                    calculateChangePercent(effectivePrice, previousPrice)
-                            .compareTo(maxChangePct.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP)) <= 0;
+            // процент изменения относительно предыдущей цены (0..100)
+            BigDecimal changePercent = calculateChangePercent(effectivePrice, previousPrice);
+            boolean changeExceeds = changePercent.compareTo(maxChangePct) > 0;
 
-            if (!markupOk || !changeOk) {
-                String reason = !markupOk ? "Превышение лимита наценки" : "Слишком сильное изменение цены";
-                stopList.add(new StopListItemDto(productId, reason, today));
+            // если превышен дневной лимит и это не автоуценка, ограничиваем изменение относительно previousPrice
+            if (changeExceeds && !isAutoMarkdown) {
+                boolean increase = effectivePrice.compareTo(previousPrice) > 0;
+                BigDecimal cappedDelta = previousPrice.multiply(maxChangePct).divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP);
+                BigDecimal adjustedPrice = increase ? previousPrice.add(cappedDelta) : previousPrice.subtract(cappedDelta);
+                adjustedPrice = adjustedPrice.setScale(2, RoundingMode.HALF_UP);
+
+                // сохраняем скорректированную запись в currentCheck (чтобы официально надеть цену)
+                ProductPriceInCheck adjustedRecord = new ProductPriceInCheck();
+                adjustedRecord.setProduct(product);
+                adjustedRecord.setCheck(currentCheck);
+                adjustedRecord.setPriceList(effectiveRecord.getPriceList());
+                adjustedRecord.setDiscount(effectiveRecord.getDiscount());
+                adjustedRecord.setInputPrice(inputPrice);
+                adjustedRecord.setFinalPrice(adjustedPrice);
+                adjustedRecord.setPriceType(effectiveType + "_capped");
+
+                productPriceInCheckRepository.save(adjustedRecord);
+
+                effectivePrice = adjustedPrice;
+                effectiveRecord = adjustedRecord;
+                changePercent = calculateChangePercent(effectivePrice, previousPrice);
             }
 
-            // Регулярная цена для ценника
+            // Проверка критического ограничения: верхний лимит наценки — если нарушен, идёт в стоп-лист
+            boolean markupOk = inputPrice.compareTo(BigDecimal.ZERO) == 0
+                    ? effectivePrice.compareTo(BigDecimal.ZERO) == 0
+                    : effectivePrice.compareTo(maxAllowedMarkupPrice) <= 0;
+
+            if (!markupOk) {
+                stopList.add(new StopListItemDto(productId, "Превышение лимита наценки", LocalDate.now()));
+                continue;
+            }
+
+            // Для печати ценника: регулярная цена должна быть указана — выбираем максимальную среди регулярных
             BigDecimal regularPrice = activeRecords.stream()
-                    .filter(it -> REGULAR_TYPE.equals(it.getPriceType()))
-                    .findFirst()
+                    .filter(it -> REGULAR_TYPE.equalsIgnoreCase(it.getPriceType()))
                     .map(ProductPriceInCheck::getFinalPrice)
+                    .max(Comparator.naturalOrder())
                     .orElse(effectivePrice);
 
-            // Тип ценника
-            String tagType = REGULAR_TYPE.equals(effectiveType) ? "белый" :
-                    effectiveType.toLowerCase().contains("акцион") ? "акционный" : "желтый";
+            String tagType = REGULAR_TYPE.equalsIgnoreCase(effectiveType) ? "белый" :
+                    effectiveType != null && effectiveType.toLowerCase().contains("акцион") ? "акционный" : "желтый";
 
-            // Описание акции
             String promoDescription = extractPromoDescription(effectiveType);
 
             priceTags.add(new PriceTag(productDto.getName(), effectivePrice, tagType, regularPrice, promoDescription));
 
-            // Передача данных по уценке (для любого типа с "уцен" в названии)
-            if (effectiveType.toLowerCase().contains("уцен")) {
-                LocalDate weekAgo = today.minusDays(SALES_PERIOD_DAYS);
+            if (effectiveType != null && effectiveType.toLowerCase().contains("уцен")) {
+                LocalDate weekAgo = LocalDate.now().minusDays(SALES_PERIOD_DAYS);
                 Pair<Integer, Integer> stock = calculateStockByLocation(allOperations, productId, locationTypeMap);
-                long soldLastWeek = calculateSoldUnitsInPeriod(allOperations, productId, weekAgo, today, locationTypeMap);
-                System.out.println("Передача данных по уценке в ГК: productId=" + productId + ", type=" + effectiveType +
-                        ", hallStock=" + stock.getLeft() + ", warehouseStock=" + stock.getRight() +
-                        ", totalStock=" + (stock.getLeft() + stock.getRight()) + ", salesLastWeek=" + soldLastWeek);
+                long soldLastWeek = calculateSoldUnitsInPeriod(allOperations, productId, weekAgo, LocalDate.now(), locationTypeMap);
+                log.info("Передача данных по уценке в ГК: productId={}, type={}, hallStock={}, warehouseStock={}, totalStock={}, salesLastWeek={}",
+                        productId, effectiveType, stock.getLeft(), stock.getRight(), stock.getLeft() + stock.getRight(), soldLastWeek);
             }
         }
 
-        coupons.addAll(calculateNearExpiryCoupons(today, allOperations));
+        coupons.addAll(calculateNearExpiryCoupons(LocalDate.now(), allOperations));
 
         if (!stopList.isEmpty()) {
-            System.out.println("Передача стоп-листа в ГК: " + stopList);
+            log.info("Передача стоп-листа в ГК: {}", stopList);
         }
 
         return new PriceOrderResponse(updatedProducts, stopList, priceTags, coupons);
@@ -215,30 +256,41 @@ public class PricingService {
 
     // ====================== ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ======================
 
+    /**
+     * Вычисляет процент изменения цены между новой и старой ценой.
+     */
     private BigDecimal calculateChangePercent(BigDecimal newPrice, BigDecimal oldPrice) {
-        if (oldPrice.compareTo(BigDecimal.ZERO) <= 0) return BigDecimal.ONE;
-        return newPrice.subtract(oldPrice).abs().divide(oldPrice, 10, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
+        if (oldPrice == null || oldPrice.compareTo(BigDecimal.ZERO) <= 0) return BigDecimal.valueOf(100);
+        BigDecimal diff = newPrice.subtract(oldPrice).abs();
+        return diff.multiply(BigDecimal.valueOf(100)).divide(oldPrice, 10, RoundingMode.HALF_UP);
     }
 
+    /**
+     * Извлекает описание акции из типа цены (например, для "1+1").
+     */
     private String extractPromoDescription(String type) {
+        if (type == null) return null;
         Pattern p1 = Pattern.compile("акция_(\\d+)\\+1", Pattern.CASE_INSENSITIVE);
         Matcher m1 = p1.matcher(type);
         if (m1.find()) {
             return "Купи " + m1.group(1) + " — получи 1 бесплатно";
         }
-
         Pattern p2 = Pattern.compile("акция_(\\d+)\\+(\\d+)", Pattern.CASE_INSENSITIVE);
         Matcher m2 = p2.matcher(type);
         if (m2.find()) {
             return "Купи " + m2.group(1) + " — получи " + m2.group(2) + " бесплатно";
         }
-
         return null;
     }
 
-    private Map<Integer, BigDecimal> getCurrentMinPrices(LocalDate date) {
-        Check currentCheck = checkRepository.getReferenceById(CURRENT_PRICE_CHECK_ID);
-        return productPriceInCheckRepository.findByCheck(currentCheck).stream()
+    /**
+     * Получает минимальные цены для товаров на указанную дату.
+     */
+    private Map<Integer, BigDecimal> getMinPricesForDate(LocalDate date) {
+        Check check = findCheckByDate(date);
+        if (check == null) return Collections.emptyMap();
+
+        return productPriceInCheckRepository.findByCheck(check).stream()
                 .filter(it -> !it.getPriceList().getEffectiveDate().isAfter(date) &&
                         !it.getPriceList().getEndDate().isBefore(date))
                 .collect(Collectors.groupingBy(it -> it.getProduct().getProductId(),
@@ -249,15 +301,16 @@ public class PricingService {
     }
 
     /**
-     * Генерация автоуценки. Теперь возвращает список товаров, заблокированных из-за нарушения наценки.
-     * Всегда передаёт данные в ГК (даже если заблокировано).
+     * Генерирует автоуценки для товаров, возвращает заблокированные из-за нарушений.
      */
-    private List<StopListItemDto> generateAutoMarkdowns(LocalDate today, List<StockOperationDto> allOperations, Map<Integer, String> locationTypeMap) {
+    private List<StopListItemDto> generateAutoMarkdowns(LocalDate today,
+                                                        List<StockOperationDto> allOperations,
+                                                        Map<Integer, String> locationTypeMap,
+                                                        Check currentCheck) {
         List<StopListItemDto> blocked = new ArrayList<>();
         List<ProductDto> productDtos = productService.getAll();
         LocalDate weekAgo = today.minusDays(SALES_PERIOD_DAYS);
-        Check currentCheck = checkRepository.getReferenceById(CURRENT_PRICE_CHECK_ID);
-        Discount noDiscount = discountRepository.getReferenceById(NO_DISCOUNT_ID);
+        Discount noDiscount = getOrCreateNoDiscount();
 
         for (ProductDto productDto : productDtos) {
             Integer productId = productDto.getProductId();
@@ -270,28 +323,29 @@ public class PricingService {
             long soldLastWeek = calculateSoldUnitsInPeriod(allOperations, productId, weekAgo, today, locationTypeMap);
 
             if (totalStock > AUTO_MARKDOWN_THRESHOLD_STOCK && soldLastWeek < AUTO_MARKDOWN_THRESHOLD_SALES) {
+
                 List<ProductPriceInCheck> currentRecords = productPriceInCheckRepository.findByCheckAndProduct(currentCheck, product);
 
                 ProductPriceInCheck regularRecord = currentRecords.stream()
-                        .filter(it -> REGULAR_TYPE.equals(it.getPriceType()))
+                        .filter(it -> REGULAR_TYPE.equalsIgnoreCase(it.getPriceType()))
                         .findFirst()
                         .orElse(null);
 
                 if (regularRecord == null) continue;
 
-                BigDecimal inputPrice = regularRecord.getInputPrice();
-                BigDecimal markdownPrice = regularRecord.getFinalPrice().multiply(AUTO_MARKDOWN_COEFFICIENT);
+                BigDecimal inputPrice = regularRecord.getInputPrice() == null ? BigDecimal.ZERO : regularRecord.getInputPrice();
+                BigDecimal markdownPrice = regularRecord.getFinalPrice().multiply(AUTO_MARKDOWN_COEFFICIENT).setScale(2, RoundingMode.HALF_UP);
 
-                // Проверка наценки (критическая, не может быть превышена ни при каких условиях)
                 Pair<BigDecimal, BigDecimal> restrictions = getRestrictionsForProduct(productDto);
                 BigDecimal maxMarkupPct = restrictions.getLeft();
                 BigDecimal maxAllowedMarkupPrice = inputPrice.multiply(BigDecimal.ONE.add(maxMarkupPct.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP)));
 
-                boolean markupOk = markdownPrice.compareTo(maxAllowedMarkupPrice) <= 0;
+                boolean markupOk = inputPrice.compareTo(BigDecimal.ZERO) == 0
+                        ? markdownPrice.compareTo(BigDecimal.ZERO) == 0
+                        : markdownPrice.compareTo(maxAllowedMarkupPrice) <= 0;
 
-                System.out.println("Передача данных по автоуценке в ГК: product=" + productId + ", hallStock=" + stock.getLeft() +
-                        ", warehouseStock=" + stock.getRight() + ", totalStock=" + totalStock + ", salesLastWeek=" + soldLastWeek +
-                        (markupOk ? "" : " (ЗАБЛОКИРОВАНО: превышение лимита наценки)"));
+                log.info("Автоуценка (product={}): hall={}, warehouse={}, total={}, salesLastWeek={} {}",
+                        productId, stock.getLeft(), stock.getRight(), totalStock, soldLastWeek, (markupOk ? "" : "(ЗАБЛОКИРОВАНО)"));
 
                 if (markupOk) {
                     PriceList markdownPl = getOrCreatePriceList(MARKDOWN_AUTO_TYPE, today, today.plusDays(7));
@@ -314,16 +368,17 @@ public class PricingService {
         return blocked;
     }
 
+    /**
+     * Получает или создаёт прайс-лист по типу и датам.
+     */
     private PriceList getOrCreatePriceList(String type, LocalDate effective, LocalDate end) {
-        Optional<PriceList> existing = priceListRepository.findAll().stream()
-                .filter(it -> it.getType().equalsIgnoreCase(type) &&
-                        !it.getEffectiveDate().isAfter(effective) &&
-                        !it.getEndDate().isBefore(effective))
+        // используем provided repository метод для фильтрации по датам
+        List<PriceList> candidates = priceListRepository.findByEffectiveDateLessThanEqualAndEndDateGreaterThanEqual(effective, effective);
+        Optional<PriceList> existing = candidates.stream()
+                .filter(pl -> pl.getType() != null && pl.getType().equalsIgnoreCase(type))
                 .findFirst();
 
-        if (existing.isPresent()) {
-            return existing.get();
-        }
+        if (existing.isPresent()) return existing.get();
 
         PriceList newPl = new PriceList();
         newPl.setType(type);
@@ -332,6 +387,55 @@ public class PricingService {
         return priceListRepository.save(newPl);
     }
 
+    /**
+     * Получает или создаёт скидку "без скидки".
+     */
+    private Discount getOrCreateNoDiscount() {
+        // если в репозитории нет специализированного метода — ищем через findAll()
+        Optional<Discount> found = discountRepository.findAll().stream()
+                .filter(d -> d.getDiscountType() != null &&
+                        (d.getDiscountType().equalsIgnoreCase("none") ||
+                                d.getDiscountType().equalsIgnoreCase("без скидки") ||
+                                d.getDiscountType().equalsIgnoreCase("no_discount")))
+                .findFirst();
+
+        if (found.isPresent()) return found.get();
+
+        Discount d = new Discount();
+        d.setDiscountType("none");
+        d.setDiscountSize(BigDecimal.ZERO);
+        return discountRepository.save(d);
+    }
+
+    /**
+     * Находит чек по указанной дате.
+     */
+    private Check findCheckByDate(LocalDate date) {
+        // Если вы добавите в CheckRepository метод findByDate(LocalDate date) — замените на него.
+        return checkRepository.findAll().stream()
+                .filter(c -> date.equals(c.getDate()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * Получает или создаёт чек для указанной даты, связанный с директором.
+     */
+    private Check getOrCreateCheckForDate(LocalDate date, int directorId) {
+        Check existing = findCheckByDate(date);
+        if (existing != null) return existing;
+
+        Employee director = employeeRepository.getReferenceById(directorId);
+
+        Check newCheck = new Check();
+        newCheck.setEmployee(director);
+        newCheck.setDate(date);
+        return checkRepository.save(newCheck);
+    }
+
+    /**
+     * Вычисляет остатки товара в зале и на складе.
+     */
     private Pair<Integer, Integer> calculateStockByLocation(List<StockOperationDto> allOperations, int productId, Map<Integer, String> locationTypeMap) {
         int hall = 0;
         int warehouse = 0;
@@ -339,7 +443,7 @@ public class PricingService {
             if (op.getProductId() == productId) {
                 int amount = ADD_OPERATION_TYPE.equalsIgnoreCase(op.getOperationType()) ? op.getQuantity() : -op.getQuantity();
                 String locType = locationTypeMap.getOrDefault(op.getStorageLocationId(), "");
-                if ("trading_hall".equalsIgnoreCase(locType)) {
+                if ("trading_hall".equalsIgnoreCase(locType) || "hall".equalsIgnoreCase(locType)) {
                     hall += amount;
                 } else {
                     warehouse += amount;
@@ -349,6 +453,9 @@ public class PricingService {
         return new Pair<>(Math.max(hall, 0), Math.max(warehouse, 0));
     }
 
+    /**
+     * Вычисляет количество проданных единиц товара за период.
+     */
     private long calculateSoldUnitsInPeriod(List<StockOperationDto> allOperations, int productId, LocalDate start, LocalDate end, Map<Integer, String> locationTypeMap) {
         return allOperations.stream()
                 .filter(op -> op.getProductId() == productId &&
@@ -360,8 +467,11 @@ public class PricingService {
                 .sum();
     }
 
+    /**
+     * Получает ограничения (наценка и изменение цены) для товара по его названию.
+     */
     private Pair<BigDecimal, BigDecimal> getRestrictionsForProduct(ProductDto productDto) {
-        String nameLower = productDto.getName().toLowerCase();
+        String nameLower = productDto.getName() == null ? "" : productDto.getName().toLowerCase();
         return restrictedKeywordsToRestrictions.entrySet().stream()
                 .filter(entry -> nameLower.contains(entry.getKey()))
                 .findFirst()
@@ -369,11 +479,15 @@ public class PricingService {
                 .orElse(defaultRestriction);
     }
 
+    /**
+     * Генерирует купоны для товаров с приближающимся сроком годности.
+     */
     private List<CouponDto> calculateNearExpiryCoupons(LocalDate today, List<StockOperationDto> allOperations) {
         List<CouponDto> coupons = new ArrayList<>();
 
         List<StockOperationDto> candidateAdds = allOperations.stream()
                 .filter(it -> ADD_OPERATION_TYPE.equalsIgnoreCase(it.getOperationType()) &&
+                        it.getExpiryDate() != null &&
                         it.getExpiryDate().isAfter(today) &&
                         !it.getExpiryDate().isAfter(today.plusDays(NEAR_EXPIRY_DAYS)) &&
                         it.getQuantity() > 0)
@@ -414,11 +528,13 @@ public class PricingService {
 
             for (Batch batch : batches) {
                 if (batch.id != 0 && batch.remaining > 0 &&
+                        batch.expiryDate != null &&
                         batch.expiryDate.isAfter(today) &&
                         !batch.expiryDate.isAfter(today.plusDays(NEAR_EXPIRY_DAYS))) {
+
+                    BigDecimal percent = COUPON_DISCOUNT.multiply(BigDecimal.valueOf(100)).setScale(0, RoundingMode.UNNECESSARY);
                     coupons.add(new CouponDto(batch.id, batch.expiryDate, COUPON_DISCOUNT,
-                            "Близкий срок годности (осталось " + batch.remaining + " шт.) — скидка " +
-                                    COUPON_DISCOUNT.multiply(BigDecimal.valueOf(100)) + "%"));
+                            "Близкий срок годности (осталось " + batch.remaining + " шт.) — скидка " + percent + "%"));
                 }
             }
         }
@@ -426,6 +542,9 @@ public class PricingService {
         return coupons;
     }
 
+    /**
+     * Внутренний класс для представления партии товара с истекающим сроком.
+     */
     private static class Batch {
         int id;
         LocalDate expiryDate;
@@ -438,6 +557,9 @@ public class PricingService {
         }
     }
 
+    /**
+     * Внутренний класс для представления пары значений (например, наценка и изменение цены).
+     */
     private static class Pair<L, R> {
         private final L left;
         private final R right;
